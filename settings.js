@@ -85,10 +85,10 @@ global.APIs = {
 
 //*─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─*
 
-global.gp1 = 'https://chat.whatsapp.com/B9YHlQE1XVGDhyKhnSIrX2?mode=ems_copy_t'
-global.comunidad1 = 'https://chat.whatsapp.com/GPfABUmCuVN2Qu1d1PPcBY'
-global.channel = 'https://whatsapp.com/channel/0029Vb73g1r1NCrTbefbFQ2T'
-global.channel2 = 'https://whatsapp.com/channel/0029VbBIilK7tkj7TROe690d'
+global.gp1 = 'https://chat.whatsapp.com/FrED40x2QDt2YWNL3Kqt7g'
+global.comunidad1 = 'https://chat.whatsapp.com/FrED40x2QDt2YWNL3Kqt7g'
+global.channel = 'https://whatsapp.com/channel/0029Vb6stJ2HwXb40WXDyn1U'
+global.channel2 = 'https://whatsapp.com/channel/0029Vb6stJ2HwXb40WXDyn1U'
 global.md = 'https://github.com/Brauliovh3/HATSUNE-MIKU'
 global.correo = 'rufinofelipe495@gmail.com' 
 

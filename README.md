@@ -1,6 +1,6 @@
 # Waguri Bot 🌸
 
-![Waguri Bot](https://qu.ax/DzYWi.jpg)
+![Waguri Bot](https://files.catbox.moe/i5vw5o.jpg)
 
 > **Nota importante:** ⚠️ No disponible en Termux aún.
 

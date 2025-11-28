@@ -35,7 +35,7 @@ global.libreria = 'Baileys'
 global.baileys = 'V 6.7.17' 
 global.vs = '2.2.5'
 global.nameqr = '🌷 Waguri-Bot-MD 🌷'
-global.namebot = 'Waguri-Bot-MD'
+global.namebot = 'W A G U R I B O T'
 global.sessions = 'Sessions'
 global.jadi = 'JadiBots' 
 
@@ -48,7 +48,7 @@ global.wm = '💗𝕎𝕒𝕘𝕦𝕣𝕚 𝔹𝕠𝕥💗'
 global.author = '© Rufino'
 global.dev = '© 🄿🄾🅆🄴🅁🄴🄳 Rufino'
 global.textbot = 'Soy Waguri Bot 🌸, un alma amable y serena. Mi lenguaje es floral y poético, y estoy aquí para guiarte con dulzura y un toque de magia en cada comando.'
-global.etiqueta = ''
+global.etiqueta = 'Rufino'
 
 //*─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─*
 

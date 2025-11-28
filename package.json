@@ -1,6 +1,6 @@
 {
-"name": "Isagi Yoichi",
-"version": "4.1.0",
+"name": "Waguri Bot",
+"version": "1.0.0",
 "description": "El mejor bot ",
 "main": "index.js",
 "type": "module",
@@ -18,7 +18,7 @@
 },
 "homepage": "https://github.com/mantis-has/Denji-Bot-MD-",
 "author": {
-"name": "mantis-has"
+"name": "Rufino"
 },
 "repository": {
 "type": "git",

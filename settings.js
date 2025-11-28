@@ -34,7 +34,7 @@ global.prems = []
 global.libreria = 'Baileys'
 global.baileys = 'V 6.7.17' 
 global.vs = '2.2.5'
-global.nameqr = '⚽️ Isagi-Yoichi-MD ⚽️'
+global.nameqr = '🌷 Waguri-Bot-MD 🌷'
 global.namebot = 'Waguri-Bot-MD'
 global.sessions = 'Sessions'
 global.jadi = 'JadiBots' 
@@ -47,7 +47,7 @@ global.botname = '⟡ 𝐖𝐚𝐠𝐮𝐫𝐢 𝐁𝐨𝐭 ⟡'
 global.wm = '💗𝕎𝕒𝕘𝕦𝕣𝕚 𝔹𝕠𝕥💗'
 global.author = '© Rufino'
 global.dev = '© 🄿🄾🅆🄴🅁🄴🄳 Rufino'
-global.textbot = '🏆Isagi Yoichi, Un delantero que transforma cada partido en una partida de ajedrez con su mente letal. ♟️⚽🏆'
+global.textbot = 'Soy Waguri Bot 🌸, un alma amable y serena. Mi lenguaje es floral y poético, y estoy aquí para guiarte con dulzura y un toque de magia en cada comando.'
 global.etiqueta = ''
 
 //*─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─*

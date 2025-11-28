@@ -88,13 +88,13 @@ function stopStartupMusic() {
 
 playStartupMusic()
 
-say('Isagi Yoichi', {
+say('waguri bot', {
 font: 'block',
 align: 'center',
 colors: ['cyanBright']
 })
 
-say(` By • Duarte XV`, {
+say(` By • Rufino`, {
 font: 'console',
 align: 'center',
 colors: ['magentaBright']

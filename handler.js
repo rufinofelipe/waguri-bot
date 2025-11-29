@@ -251,12 +251,12 @@ const botId = this.user.jid
 const primaryBotId = chat.primaryBot
 if (name !== "group-banchat.js" && chat?.isBanned && !isROwner) {
 if (!primaryBotId || primaryBotId === botId) {
-const aviso = `⚽ El bot *${global.botname}* está desactivado en este grupo\n\n> ⚽ Un *administrador* puede activarlo con el comando:\n> » *${usedPrefix}bot on*`.trim()
+const aviso = `🌸El bot *${global.botname}* está desactivado en este grupo\n\n> 🌸 Un *administrador* puede activarlo con el comando:\n> » *${usedPrefix}bot on*`.trim()
 await m.reply(aviso)
 return
 }}
 if (m.text && user.banned && !isROwner) {
-const mensaje = `⚽ Estas baneado/a, no puedes usar comandos en este bot!\n\n> ● *Razón ›* ${user.bannedReason}\n\n> ● Si este Bot es cuenta oficial y tienes evidencia que respalde que este mensaje es un error, puedes exponer tu caso con un moderador.`.trim()
+const mensaje = `🌸 Estas baneado/a, no puedes usar comandos en este bot!\n\n> ● *Razón ›* ${user.bannedReason}\n\n> ● Si este Bot es cuenta oficial y tienes evidencia que respalde que este mensaje es un error, puedes exponer tu caso con un moderador.`.trim()
 if (!primaryBotId || primaryBotId === botId) {
 m.reply(mensaje)
 return
@@ -356,21 +356,21 @@ console.log(m.message)
 
 global.dfail = (type, m, conn) => {
 const msg = {
-rowner: `⚽ El comando *${comando}* solo puede ser usado por DuarteXV (Creador).`, 
-owner: `⚽ El comando *${comando}* solo puede ser usado por los desarrolladores del bot.`, 
-mods: `⚽ El comando *${comando}* solo puede ser usado por los moderadores del bot.`, 
-premium: `⚽ El comando *${comando}* solo puede ser usado por los usuarios premium.`, 
-group: `⚽ El comando *${comando}* solo puede ser usado en grupos.`,
-private: `⚽ El comando *${comando}* solo puede ser usado al chat privado del bot.`,
-admin: `⚽ El comando *${comando}* solo puede ser usado por los administradores del grupo.`, 
-botAdmin: `⚽ Para ejecutar el comando *${comando}* debo ser administrador del grupo.`,
-restrict: `⚽ Esta caracteristica está desactivada.`
+rowner: `🌸 El comando *${comando}* solo puede ser usado por DuarteXV (Creador).`, 
+owner: `🌸 El comando *${comando}* solo puede ser usado por los desarrolladores del bot.`, 
+mods: `🌸 El comando *${comando}* solo puede ser usado por los moderadores del bot.`, 
+premium: `🌸 El comando *${comando}* solo puede ser usado por los usuarios premium.`, 
+group: `🌸 El comando *${comando}* solo puede ser usado en grupos.`,
+private: `🌸 El comando *${comando}* solo puede ser usado al chat privado del bot.`,
+admin: `🌸 El comando *${comando}* solo puede ser usado por los administradores del grupo.`, 
+botAdmin: `🌸 Para ejecutar el comando *${comando}* debo ser administrador del grupo.`,
+restrict: `🌸 Esta caracteristica está desactivada.`
 }[type]
 if (msg) return conn.reply(m.chat, msg, m, global.rcanal).then(_ => m.react('✖️'))
 }
 let file = global.__filename(import.meta.url, true)
 watchFile(file, async () => {
 unwatchFile(file)
-console.log(chalk.blueBright("⚽ Se actualizo 'handler.js' - Blue Lock Bot by DuarteXV"))
+console.log(chalk.blueBright("🌸 Se actualizo 'handler.js' - Blue Lock Bot by DuarteXV"))
 if (global.reloadHandler) console.log(await global.reloadHandler())
 })

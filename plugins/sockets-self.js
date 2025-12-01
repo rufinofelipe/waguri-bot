@@ -1,0 +1,37 @@
+// ༻✦༺ ༻✧༺ ༻✦༺ ༻⸙͎۪۫༺ ༻✦༺ ༻✧༺ ༻✦༺
+//   Ritual del Espejo Interior - Código de la Casa Waguri
+// ༻✦༺ ༻✧༺ ༻✦༺ ༻⸙͎۪۫༺ ༻✦༺ ༻✧༺ ༻✦༺
+
+const handler = async (m, { conn, command, usedPrefix, text }) => {
+  try {
+    const isSubBots = [conn.user.jid, ...global.owner.map(([number]) => `${number}@s.whatsapp.net`)].includes(m.sender)
+    if (!isSubBots) return m.reply(`🌸 *Este ritual solo puede ser realizado por los guardianes del jardín.*`)
+
+    const config = global.db.data.settings[conn.user.jid]
+    const value = text ? text.trim().toLowerCase() : ''
+    const type = 'self'
+    const isEnable = config[type] || false
+    const enable = value === 'enable' || value === 'on'
+    const disable = value === 'disable' || value === 'off'
+    if (enable || disable) {
+      if (isEnable === enable)
+        return m.reply(`🌿 *El espejo interior ya estaba ${enable ? 'activado' : 'desactivado'}.*`)
+      config[type] = enable
+      return conn.reply(m.chat, `🌺 *Has ${enable ? 'activado' : 'desactivado'} el espejo interior* para esta esencia.\n\n${enable ? 'Ahora me veré a mí misma en el reflejo.' : 'El reflejo se ha desvanecido.'}`, m, rcanal)
+    }
+    conn.reply(m.chat, `✨ Puedes activar o desactivar el *${command}* utilizando:\n\n🌷 *${command}* enable\n🌷 *${command}* disable\n\n🎋 Estado actual » *${isEnable ? '✓ Activado' : '✗ Desactivado'}*`, m, rcanal)
+  } catch (error) {
+    await m.react('✖️')
+    conn.reply(m.chat, `🍂 *El ritual del espejo ha fallado*\n\n${error.message || error}`, m, rcanal)
+  }
+}
+
+handler.command = ['self']
+handler.help = ['self']
+handler.tags = ['socket']
+
+export default handler
+
+// ༻✦༺ ༻✧༺ ༻✦༺ ༻⸙͎۪۫༺ ༻✦༺ ༻✧༺ ༻✦༺
+//   Que el reflejo muestre la verdad interior
+// ༻✦༺ ༻✧༺ ༻✦༺ ༻⸙͎۪۫༺ ༻✦༺ ༻✧༺ ༻✦༺

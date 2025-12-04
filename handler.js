@@ -356,6 +356,7 @@ console.log(m.message)
 
 global.dfail = (type, m, conn) => {
 const msg = {
+<<<<<<< HEAD
 rowner: `⚽ El comando *${comando}* solo puede ser usado por DuarteXV (Creador).`, 
 owner: `⚽ El comando *${comando}* solo puede ser usado por los desarrolladores del bot.`, 
 mods: `⚽ El comando *${comando}* solo puede ser usado por los moderadores del bot.`, 
@@ -365,12 +366,27 @@ private: `⚽ El comando *${comando}* solo puede ser usado al chat privado del b
 admin: `⚽ El comando *${comando}* solo puede ser usado por los administradores del grupo.`, 
 botAdmin: `⚽ Para ejecutar el comando *${comando}* debo ser administrador del grupo.`,
 restrict: `⚽ Esta caracteristica está desactivada.`
+=======
+rowner: `🌸 El comando *${comando}* solo puede ser usado por Rufino (Creador).`, 
+owner: `🌸 El comando *${comando}* solo puede ser usado por los desarrolladores del bot.`, 
+mods: `🌸 El comando *${comando}* solo puede ser usado por los moderadores del bot.`, 
+premium: `🌸 El comando *${comando}* solo puede ser usado por los usuarios premium.`, 
+group: `🌸 El comando *${comando}* solo puede ser usado en grupos.`,
+private: `🌸 El comando *${comando}* solo puede ser usado al chat privado del bot.`,
+admin: `🌸 El comando *${comando}* solo puede ser usado por los administradores del grupo.`, 
+botAdmin: `🌸 Para ejecutar el comando *${comando}* debo ser administrador del grupo.`,
+restrict: `🌸 Esta caracteristica está desactivada.`
+>>>>>>> 1f0bbcf1ebe8859fb18ffd6dc5a9c8ddbe752a8f
 }[type]
 if (msg) return conn.reply(m.chat, msg, m, global.rcanal).then(_ => m.react('✖️'))
 }
 let file = global.__filename(import.meta.url, true)
 watchFile(file, async () => {
 unwatchFile(file)
+<<<<<<< HEAD
 console.log(chalk.blueBright("⚽ Se actualizo 'handler.js' - Blue Lock Bot by DuarteXV"))
+=======
+console.log(chalk.blueBright("🌸 Se actualizo 'handler.js' - Waguri Bot by Rufino"))
+>>>>>>> 1f0bbcf1ebe8859fb18ffd6dc5a9c8ddbe752a8f
 if (global.reloadHandler) console.log(await global.reloadHandler())
 })

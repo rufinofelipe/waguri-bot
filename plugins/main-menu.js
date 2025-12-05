@@ -42,6 +42,7 @@ let handler = async (m, { conn }) => {
 ✿/tag
 ✿/play
 ✿/play2
+✿/invocar
 
 
 ✧˖°⊹ ─────────────── ⊹°˖✧

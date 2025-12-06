@@ -2,7 +2,7 @@ import fetch from 'node-fetch'
 
 const channelId = '120363423258391692@newsletter'
 const channelName = '🌸❖𝗪𝗔𝗚𝗨𝗥𝗜 𝗕𝗢𝗧❖🌸'
-const menuImage = 'https://photos.app.goo.gl/3yPcZqjAXL1aa4re7'
+const menuImage = 'https://cdn.stellarwa.xyz/files/M2Ua.jpeg'
 
 let handler = async (m, { conn }) => {
   let mentionedJid = m.mentionedJid

@@ -45,6 +45,8 @@ let handler = async (m, { conn }) => {
 ✿ /play2
 ✿ /invocar
 ✿ /sticker
+✿ /kick
+✿ /waguri
 
 ✧˖°⊹ ─────────────── ⊹°˖✧
 `.trim()

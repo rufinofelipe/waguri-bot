@@ -23,31 +23,37 @@ let handler = async (m, { conn }) => {
 ˚ ♡ ⋆｡˚ Biblioteca ⟢ Baileys
 ✧˖°⊹ ─────────────── ⊹°˖✧
 
-✿ /autoadmin
-✿ /ping
-✿ /demote
-✿ /join
-✿ /quitar prefijo
-✿ /update
-✿ /setprefijo
-✿ /bots
-✿ /delprimary 
-✿ /delprimary2
-✿ /leave
-✿ /logotipo
-✿ /reload
-✿ /setbanner
-✿ /setcurrency
-✿ /setname
-✿ /setprimary
-✿ /tag
-✿ /play
-✿ /play2
-✿ /invocar
-✿ /sticker
-✿ /kick
-✿ /waguri
-
+❀ /autoadmin
+❀ /ping
+❀/demote
+❀ /join
+❀/quitar prefijo
+❀/update
+❀ /setprefijo
+❀/bots
+❀/delprimary 
+❀/delprimary2
+❀/leave
+❀/logotipo
+❀/reload
+❀/setbanner
+❀ /setcurrency
+❀/setname
+❀ /setprimary
+❀/tag
+❀/play
+❀/play2
+❀/invocar
+❀/sticker
+❀/kick
+❀/waguri
+❀ /Pinterest
+❀ /gemini
+❀ /copilot
+❀ /apk
+❀ /ig
+❀ /antilink
+❀ /tiktoksearch
 ✧˖°⊹ ─────────────── ⊹°˖✧
 `.trim()
 
@@ -79,4 +85,5 @@ function clockString(ms) {
   let minutes = Math.floor((ms / (1000 * 60)) % 60)
   let hours = Math.floor((ms / (1000 * 60 * 60)) % 24)
   return `${hours}h ${minutes}m ${seconds}s`
+
 }

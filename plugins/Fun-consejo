@@ -1,0 +1,18 @@
+const consejos = [
+  "No dejes para mañana lo que puedes hacer hoy.",
+  "El fracaso es parte del aprendizaje.",
+  "Confía en ti, incluso cuando los demás no lo hagan.",
+  "La paciencia es clave para el éxito.",
+  "Cada día es una nueva oportunidad para mejorar.",
+  "Rodéate de personas que te inspiren.",
+  "Nunca dejes de aprender.",
+  "Los errores te enseñan más que los aciertos.",
+];
+
+async function onMessage(m, sock) {
+  const texto = m.message?.conversation || "";
+  if (texto.startsWith(".consejo")) {
+    const consejo = consejos[Math.floor(Math.random() * consejos.length)];
+    await sock.sendMessage(m.key.remoteJid, { text: consejo }, { quoted: m });
+  }
+}

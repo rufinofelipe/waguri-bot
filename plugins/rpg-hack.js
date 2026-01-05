@@ -90,5 +90,7 @@ let handler = async (m, { conn, usedPrefix }) => {
 
 handler.help = ['hack', 'hackear', 'databreach']
 handler.tags = ['rpg', 'cyberpunk']
-handler.command = /^(hack|hackear|databreach|breach)$/i
+handler.command = ['hack', 'hackear']
 handler.cooldown = 1800000 // 30 minutos
+
+export default handler

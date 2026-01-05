@@ -110,7 +110,7 @@ global.rcanal = {
 
 
 global.redes = 'https://whatsapp.com/channel/0029VbBUHyQCsU9IpJ0oIO2i '
-global.dev = '© 🄿🄾🅆🄴🅁🄴🄳 Rufino '
+global.dev = '© 𝗣𝗼𝘄𝗲𝗿𝗲𝗱 𝗯𝘆 𝗥𝘂𝗳𝗶𝗻𝗼 '
 global.emoji = '💗'
 global.emoji2 = '🌸'
 global.emoji3 = '🌷'

@@ -109,46 +109,32 @@ menciana a todos los usuarios
          🌸 𝗔𝗡𝗜𝗠𝗘 🌸
 ❀ /bath  
 > Bañarse
-
 ❀ /bite  
 > Morder
-
 ❀ /blush  
 > Sonrojarse
-
 ❀ /bored  
 > Estar aburrido
-
 ❀ /buenas-noches  
 > Desear buenas noches
-
 ❀ /buenos-dias  
 > Desear buenos días
-
 ❀ /cry  
 > Llorar
-
 ❀ /dance  
 > Bailar
-
 ❀ /fumar  
 > Fumar
-
 ❀ /hug  
 > Abrazar
-
 ❀ /kiss  
 > Besar
-
 ❀ /pensar  
 > Pensar
-
 ❀ /sacred  
 > asustado 
-
 ❀ /slap  
 > Dar una cachetada
-
 ❀ /sleep  
 > Dormir     
 ✧˖°⊹ ─────────────── ⊹°˖✧

@@ -10,7 +10,7 @@ let handler = async function (m, { conn, text, usedPrefix, command }) {
   let user = global.db.data.users[m.sender]
   let name2 = (await conn.getName(m.sender)) || 'waguri'
   let channel ='https://whatsapp.com/channel/0029VbBUHyQCsU9IpJ0oIO2i'
-  let waguriimg= 'https://cdn.hostrta.win/fl/5h5u.jpg'
+  let waguriimg= 'https://cdn.hostrta.win/fl/85rm.jpg'
 
   if (user.registered === true) return m.reply(
     `🌟 *¡Ya estás registrado en waguri bot!* 🌟\n\n🌸 Si quieres eliminar tu registro, usa:\n*${usedPrefix}unreg*`

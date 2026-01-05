@@ -233,4 +233,10 @@ function initEconomy(user) {
   }
 }
 
-handler.help = ['casino', 'apostar', 'coinflip <cantidad> <cara/c
+handler.help = ['casino', 'apostar', 'coinflip <cantidad> <cara/cruz>', 'dado <cantidad> <número>', 'ruleta <apuesta> <cantidad>']
+handler.tags = ['economy', 'games']
+handler.command = /^(casino|apostar|coinflip|dado|ruleta|blackjack)$/i
+handler.group = true
+handler.register = true
+
+export default handler

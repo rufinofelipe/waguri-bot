@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
-const API_KEY = 'stellar-3Tjfq4Rj';
-const API_URL = 'https://api.stellarwa.xyz/dl/spotify';
+const API_KEY = 'stellar-dXXUtmL2';
+const API_URL = 'https://rest.alyabotpe.xyz/dl/spotify';
 
 async function handler(m, { text, conn }) {
     if (!text) {

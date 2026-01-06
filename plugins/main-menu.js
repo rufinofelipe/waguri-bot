@@ -76,6 +76,8 @@ let handler = async (m, { conn }) => {
 > lista de los creadores del bot
 ❀ /repo
 > muestra el repositorio del bot 
+❀ /link
+> muestra los enlaces oficiales 
           🌸 𝐅𝐔𝐍 🌸
 ❀ /doxear
 > simula un doxeo

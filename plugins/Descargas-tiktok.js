@@ -1,46 +1,148 @@
 import fetch from 'node-fetch';
 
 var handler = async (m, { conn, args, usedPrefix, command }) => {
-    if (!args[0]) {
-        return conn.reply(m.chat, `🌸 Por favor, ingresa un enlace de TikTok.\n\n📝 *Ejemplo:* ${usedPrefix}${command} https://www.tiktok.com/@usuario/video/1234567890`, m);
+    // Verificar si el usuario está registrado
+    const user = global.db.data.users[m.sender];
+    if (!user || !user.registered) {
+        await conn.sendMessage(m.chat, { react: { text: "🔒", key: m.key } });
+        return conn.reply(m.chat, 
+            `🔒 *REGISTRO REQUERIDO* 🔒\n\n` +
+            `Para usar el comando *${command}* necesitas estar registrado.\n\n` +
+            `📋 *Regístrate con:*\n` +
+            `${usedPrefix}reg nombre.edad\n\n` +
+            `*Ejemplo:* ${usedPrefix}reg ${conn.getName(m.sender) || 'Usuario'}.18\n\n` +
+            `¡Regístrate para descargar videos de TikTok! 📱`,
+            m
+        );
     }
 
+    if (!args[0]) {
+        await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
+        return conn.reply(m.chat, 
+            `🌸 *DESCARGADOR TIKTOK* 🌸\n\n` +
+            `Por favor, ingresa un enlace de TikTok.\n\n` +
+            `📝 *Ejemplo:*\n` +
+            `${usedPrefix}${command} https://www.tiktok.com/@usuario/video/1234567890\n\n` +
+            `🔗 *Formatos aceptados:*\n` +
+            `• https://www.tiktok.com/@...\n` +
+            `• https://vm.tiktok.com/...\n` +
+            `• https://vt.tiktok.com/...`,
+            m
+        );
+    }
 
     const tiktokUrl = validateTikTokUrl(args[0]);
     if (!tiktokUrl) {
-        return conn.reply(m.chat, `❌ URL de TikTok inválida. Por favor verifica el enlace.\n\n✅ *URLs válidas:*\n• https://www.tiktok.com/@usuario/video/...\n• https://vm.tiktok.com/...\n• https://vt.tiktok.com/...`, m);
+        await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
+        return conn.reply(m.chat, 
+            `❌ *URL INVÁLIDA*\n\n` +
+            `La URL de TikTok no es válida. Por favor verifica el enlace.\n\n` +
+            `✅ *URLs válidas:*\n` +
+            `• https://www.tiktok.com/@usuario/video/...\n` +
+            `• https://vm.tiktok.com/...\n` +
+            `• https://vt.tiktok.com/...\n` +
+            `• https://m.tiktok.com/v/...`,
+            m
+        );
     }
 
     try {
-        await conn.reply(m.chat, `🔄 Descargando video de TikTok... Por favor espera.`, m);
-
+        // Enviar reacción de procesando
+        await conn.sendMessage(m.chat, { react: { text: "⏳", key: m.key } });
+        
+        const processingMsg = await conn.reply(m.chat, 
+            `🔄 *DESCARGANDO VIDEO DE TIKTOK...* 🔄\n\n` +
+            `🔗 *Enlace:* ${tiktokUrl}\n` +
+            `👤 *Usuario:* ${user.name || conn.getName(m.sender)}\n\n` +
+            `⏳ Procesando video, por favor espera...`,
+            m
+        );
 
         const result = await downloadFromMultipleAPIs(tiktokUrl);
 
         if (!result) {
-            return conn.reply(m.chat, `❌ No se pudo descargar el video. El enlace podría ser privado o no válido.`, m);
+            // Eliminar mensaje de procesamiento
+            if (processingMsg && processingMsg.key && processingMsg.key.id) {
+                try {
+                    await conn.sendMessage(m.chat, { 
+                        delete: { 
+                            remoteJid: m.chat, 
+                            fromMe: true, 
+                            id: processingMsg.key.id
+                        } 
+                    });
+                } catch (e) {}
+            }
+            await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
+            return conn.reply(m.chat, 
+                `❌ *DESCARGA FALLIDA*\n\n` +
+                `No se pudo descargar el video.\n\n` +
+                `💡 *Posibles causas:*\n` +
+                `• El video podría ser privado\n` +
+                `• El enlace no es válido\n` +
+                `• Restricciones regionales\n` +
+                `• El video fue eliminado\n\n` +
+                `🔄 Intenta con otro enlace o más tarde.`,
+                m
+            );
         }
 
         const { videoUrl, title, author, thumbnail } = result;
 
         if (videoUrl) {
-        const caption = `✅ *Video de TikTok descargado*\n\n` +
-                          `👤 *Autor:* ${author || 'Desconocido'}\n` +
-                          `📹 *Título:* ${title || 'Sin título'}\n\n` +
-                          `🌸 *Descargado por waguri Bot*`;
+            // Eliminar mensaje de procesamiento
+            if (processingMsg && processingMsg.key && processingMsg.key.id) {
+                try {
+                    await conn.sendMessage(m.chat, { 
+                        delete: { 
+                            remoteJid: m.chat, 
+                            fromMe: true, 
+                            id: processingMsg.key.id
+                        } 
+                    });
+                } catch (e) {}
+            }
+            
+            // Enviar reacción de éxito
+            await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
+            
+            const caption = `✅ *VIDEO DE TIKTOK DESCARGADO*\n\n` +
+                           `👤 *Autor:* ${author || 'Desconocido'}\n` +
+                           `📹 *Título:* ${title || 'Sin título'}\n` +
+                           `🌸 *Usuario:* ${user.name || conn.getName(m.sender)}\n` +
+                           `📱 *Descargado por waguri Bot*\n\n` +
+                           `✨ ¡Disfruta del video!`;
 
             await conn.sendMessage(m.chat, {
                 video: { url: videoUrl },
                 mimetype: 'video/mp4',
-                fileName: 'tiktok.mp4',
+                fileName: `tiktok_${Date.now()}.mp4`,
                 caption: caption
             }, { quoted: m });
         } else {
-            return conn.reply(m.chat, `❌ No se pudo obtener el video. Intenta con otro enlace.`, m);
+            await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
+            return conn.reply(m.chat, 
+                `❌ *ERROR EN EL VIDEO*\n\n` +
+                `No se pudo obtener el video. Intenta con otro enlace.\n\n` +
+                `🔧 *Consejo:*\n` +
+                `Verifica que el video sea público y esté disponible.`,
+                m
+            );
         }
     } catch (error) {
         console.error('Error en TikTok download:', error);
-        return conn.reply(m.chat, `❌ Error al procesar la descarga: ${error.message}\n\n💡 *Consejos:*\n• Verifica que el video sea público\n• Intenta con un enlace diferente\n• El video podría estar restringido por región`, m);
+        await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
+        return conn.reply(m.chat, 
+            `❌ *ERROR EN LA DESCARGA*\n\n` +
+            `*Detalles:* ${error.message}\n\n` +
+            `💡 *Consejos:*\n` +
+            `• Verifica que el video sea público\n` +
+            `• Intenta con un enlace diferente\n` +
+            `• El video podría estar restringido por región\n` +
+            `• Verifica tu conexión a internet\n\n` +
+            `🔄 Intenta nuevamente en unos minutos.`,
+            m
+        );
     }
 };
 
@@ -48,16 +150,17 @@ handler.help = ['tiktok'].map((v) => v + ' *<link>*');
 handler.tags = ['descargas'];
 handler.command = ['tiktok', 'tt'];
 handler.group = false;
+handler.register = true;
 
 export default handler;
 
 
 function validateTikTokUrl(url) {
     try {
-
+        // Limpiar la URL
         url = url.trim().replace(/[^\x00-\x7F]/g, "");
 
-
+        // Patrones de URL de TikTok
         const patterns = [
             /(?:https?:\/\/)?(?:www\.)?tiktok\.com\/@([^\/]+)\/video\/(\d+)/,
             /(?:https?:\/\/)?vm\.tiktok\.com\/([A-Za-z0-9]+)/,
@@ -66,10 +169,10 @@ function validateTikTokUrl(url) {
             /(?:https?:\/\/)?www\.tiktok\.com\/t\/([A-Za-z0-9]+)/
         ];
 
-
+        // Verificar si coincide con algún patrón
         for (const pattern of patterns) {
             if (pattern.test(url)) {
-
+                // Asegurarse de que tenga protocolo HTTPS
                 if (!url.startsWith('http://') && !url.startsWith('https://')) {
                     url = 'https://' + url;
                 }
@@ -220,7 +323,7 @@ async function tiktokSSSTik(url) {
 
         const html = await response.text();
 
-
+        // Extraer URL del video y título del HTML
         const videoMatch = html.match(/href="([^"]*\.mp4[^"]*)"/);
         const titleMatch = html.match(/<p class="maintext">([^<]+)</);
 

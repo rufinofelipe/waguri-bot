@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const API_KEY = 'stellar-t1opU0P4';
+const API_KEY = 'stellar-dXXUtmL2';
 const API_URL = 'https://rest.alyabotpe.xyz/ai/copilot';
 
 async function handler(m, { text, conn, usedPrefix, command }) {

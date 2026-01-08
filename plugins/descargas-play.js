@@ -10,24 +10,51 @@ function getFilePath(groupId) {
 async function fetchWithFallback(urls) {
   for (const url of urls) {
     try {
-      const res = await fetch(url)
+      console.log(`Intentando API: ${url}`)
+      const res = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept': 'application/json'
+        },
+        timeout: 30000
+      })
+      
+      if (!res.ok) {
+        console.log(`API falló con status: ${res.status}`)
+        continue
+      }
+      
       const json = await res.json()
-      // Adaptar a diferentes formatos de respuesta de API
-      if (json.status && (json.data || json.result)) {
-        const data = json.data || json.result
-        const dlLink = data.dl || data.url || data.link
-        const title = data.title || data.filename || 'desconocido'
-        if (dlLink) return { url: dlLink, title: title }
+      console.log('Respuesta de API:', JSON.stringify(json).substring(0, 200))
+      
+      // Formato AlyaBot API
+      if (json.status === true || json.status === 'success') {
+        if (json.data) {
+          const dlLink = json.data.dl || json.data.url || json.data.link
+          const title = json.data.title || json.data.filename || 'desconocido'
+          if (dlLink) return { url: dlLink, title: title }
+        }
+        // Algunas APIs pueden devolver el resultado directo
+        if (json.result) {
+          const dlLink = json.result.dl || json.result.url || json.result.link
+          const title = json.result.title || json.result.filename || 'desconocido'
+          if (dlLink) return { url: dlLink, title: title }
+        }
       }
-      // Formato alternativo para algunas APIs
-      if (json.dl || json.url) {
-        return { url: json.dl || json.url, title: json.title || 'desconocido' }
+      
+      // Formato directo
+      if (json.dl || json.url || json.link) {
+        return { 
+          url: json.dl || json.url || json.link, 
+          title: json.title || json.filename || 'desconocido' 
+        }
       }
+      
     } catch (e) {
-      console.log(`API falló: ${url}`, e.message)
+      console.log(`Error en API ${url}:`, e.message)
     }
   }
-  throw new Error('Todas las APIs fallaron')
+  throw new Error('Todas las APIs de AlyaBot fallaron')
 }
 
 const handler = async (m, { conn, text, command, usedPrefix }) => {
@@ -120,90 +147,117 @@ const handler = async (m, { conn, text, command, usedPrefix }) => {
     await conn.sendMessage(m.chat, { react: { text: "⏳", key: m.key } });
     await conn.reply(m.chat, infoMessage, m, JT)
 
-    // URLs de las APIs proporcionadas
+    // Codificar URL para usar en las APIs
     const ytUrl = encodeURIComponent(url)
     
-    // APIs para audio (MP3)
+    // URLs de las APIs de AlyaBot solamente
     const audioAPIs = [
       `https://rest.alyabotpe.xyz/dl/ytmp3?url=${ytUrl}`,
-      `https://rest.alyabotpe.xyz/dl/ytdlv2?url=${ytUrl}&type=audio`,
-      `https://api.stellarwa.xyz/dl/ytmp3=${ytUrl}&key=stellar-3Tjfq4Rj`,
-      `https://api-adonix.ultraplus.click/download/ytaudio?apikey=AdonixKeyxu5ccb9900&url=${ytUrl}`
+      `https://rest.alyabotpe.xyz/dl/ytdlv2?url=${ytUrl}&type=audio`
     ]
     
-    // APIs para video (MP4)
     const videoAPIs = [
       `https://rest.alyabotpe.xyz/dl/ytmp4?url=${ytUrl}`,
-      `https://rest.alyabotpe.xyz/dl/ytdlv2?url=${ytUrl}&type=video`,
-      `https://api.stellarwa.xyz/dl/ytmp4=${ytUrl}&quality=144&key=stellar-3Tjfq4Rj`,
-      `https://api-adonix.ultraplus.click/download/ytvideo?apikey=AdonixKeyxu5ccb9900&url=${ytUrl}`
+      `https://rest.alyabotpe.xyz/dl/ytdlv2?url=${ytUrl}&type=video`
     ]
 
     if (['play', 'yta', 'ytmp3', 'playaudio'].includes(command)) {
       try {
         await conn.sendMessage(m.chat, { react: { text: "🔍", key: m.key } });
+        console.log(`Buscando audio para: ${title}`)
+        
         const data = await fetchWithFallback(audioAPIs)
+        console.log(`Audio encontrado en: ${data.url}`)
+        
         // Enviar reacción de éxito
         await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
         
+        // Limpiar título para nombre de archivo
+        const cleanTitle = (data.title || title || 'audio')
+          .replace(/[<>:"/\\|?*]/g, '')
+          .substring(0, 50)
+        
         // Enviar el audio
         await conn.sendMessage(m.chat, {
-          audio: { url: data.url },
-          fileName: `${data.title.replace(/[^\w\s]/gi, '') || 'audio'}.mp3`,
+          audio: { 
+            url: data.url,
+            mimetype: 'audio/mpeg'
+          },
+          fileName: `${cleanTitle}.mp3`,
           mimetype: 'audio/mpeg',
-          ptt: false,
-          contextInfo: {
-            externalAdReply: {
-              title: data.title || 'Audio Descargado',
-              body: `🎵 Descargado con ${botname}`,
-              thumbnail: thumb,
-              mediaType: 1,
-              mediaUrl: data.url,
-              sourceUrl: data.url
-            }
-          }
+          ptt: false
         }, { quoted: m })
         
       } catch (e) {
         await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
-        return conn.reply(m.chat, `🌸 ¡Fallo en la descarga de audio! ${e.message}`, m)
+        console.error('Error en descarga de audio:', e)
+        return conn.reply(m.chat, 
+          `🌸 𝗬𝗼𝘂𝗧𝘂𝗯𝗲 𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱 | 𝙒𝙖𝙜𝙪𝙧𝙞 𝘽𝙤𝙩\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `❌ *¡Error en la descarga de audio!*\n\n` +
+          `𝗠𝗲𝗻𝘀𝗮𝗷𝗲: ${e.message}\n\n` +
+          `Intenta con otro enlace o más tarde.`,
+          m
+        )
       }
     } else if (['play2', 'ytv', 'ytmp4'].includes(command)) {
       try {
         await conn.sendMessage(m.chat, { react: { text: "🔍", key: m.key } });
+        console.log(`Buscando video para: ${title}`)
+        
         const data = await fetchWithFallback(videoAPIs)
+        console.log(`Video encontrado en: ${data.url}`)
+        
         // Enviar reacción de éxito
         await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
         
+        // Limpiar título para nombre de archivo
+        const cleanTitle = (data.title || title || 'video')
+          .replace(/[<>:"/\\|?*]/g, '')
+          .substring(0, 50)
+        
         // Enviar el video
         await conn.sendMessage(m.chat, {
-          video: { url: data.url },
-          fileName: `${data.title.replace(/[^\w\s]/gi, '') || 'video'}.mp4`,
+          video: { 
+            url: data.url,
+            mimetype: 'video/mp4'
+          },
+          fileName: `${cleanTitle}.mp4`,
           mimetype: 'video/mp4',
-          caption: `📹 *${data.title || 'Video descargado'}*\n\n🌸 Descargado con ${botname}`,
-          contextInfo: {
-            externalAdReply: {
-              title: data.title || 'Video Descargado',
-              body: `🎬 Descargado con ${botname}`,
-              thumbnail: thumb,
-              mediaType: 1,
-              mediaUrl: data.url,
-              sourceUrl: data.url
-            }
-          }
+          caption: `🌸 𝗬𝗼𝘂𝗧𝘂𝗯𝗲 𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱 | 𝙒𝙖𝙜𝙪𝙧𝙞 𝘽𝙤𝙩\n\n✅ *${cleanTitle}*\n\n📹 Video descargado exitosamente.`
         }, { quoted: m })
         
       } catch (e) {
         await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
-        return conn.reply(m.chat, `🌸 ¡Fallo en la descarga de video! ${e.message}`, m)
+        console.error('Error en descarga de video:', e)
+        return conn.reply(m.chat, 
+          `🌸 𝗬𝗼𝘂𝗧𝘂𝗯𝗲 𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱 | 𝙒𝙖𝙜𝙪𝙧𝙞 𝘽𝙤𝙩\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `❌ *¡Error en la descarga de video!*\n\n` +
+          `𝗠𝗲𝗻𝘀𝗮𝗷𝗲: ${e.message}\n\n` +
+          `Intenta con otro enlace o más tarde.`,
+          m
+        )
       }
     } else {
-      return conn.reply(m.chat, '✧︎ Comando no reconocido.', m)
+      await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
+      return conn.reply(m.chat, 
+        `🌸 𝗬𝗼𝘂𝗧𝘂𝗯𝗲 𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱 | 𝙒𝙖𝙜𝙪𝙧𝙞 𝘽𝙤𝙩\n\n` +
+        `✧︎ Comando no reconocido.\n\n` +
+        `Usa: ${usedPrefix}play [nombre/url] para audio\n` +
+        `o: ${usedPrefix}play2 [nombre/url] para video`,
+        m
+      )
     }
 
   } catch (error) {
     await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
-    return m.reply(`⚠︎ Ocurrió un error: ${error.message}`)
+    return m.reply(
+      `🌸 𝗬𝗼𝘂𝗧𝘂𝗯𝗲 𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱 | 𝙒𝙖𝙜𝙪𝙧𝙞 𝘽𝙤𝙩\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `⚠︎ *Ocurrió un error:*\n\n` +
+      `𝗠𝗲𝗻𝘀𝗮𝗷𝗲: ${error.message}`
+    )
   }
 }
 

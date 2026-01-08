@@ -14,210 +14,128 @@ let handler = async (m, { conn }) => {
   const uptime = clockString(process.uptime() * 1000)
 
   let txt = `
-> Hola @${userId.split('@')[0]}, mi nombre es ${botname} ⸜(。˃ ᴗ ˂ )⸝♡
+╭─⊷ *INFORMACIÓN DEL BOT*
+│ ๖ۣۜ҉➢ Tipo : ${(conn.user.jid == global.conn.user.jid ? 'Principal' : 'Sub-bot')}
+│ ๖ۣۜ҉➢ Activo : ${uptime}
+│ ๖ۣۜ҉➢ Usuarios : ${totalreg}
+│ ๖ۣۜ҉➢ Biblioteca : Baileys
+│ ๖ۣۜ҉➢ Canal : https://whatsapp.com/channel/0029VbBUHyQCsU9IpJ0oIO2i
+╰─────────────⊷
 
-✧˖°⊹ ─────────────── ⊹°˖✧
-˚ ♡ ⋆｡˚ Tipo ⟢ ${(conn.user.jid == global.conn.user.jid ? 'Principal' : 'Sub-bot')}
-˚ ♡ ⋆｡˚ Activo ⟢ ${uptime}
-˚ ♡ ⋆｡˚ Usuarios ⟢ ${totalreg}
-˚ ♡ ⋆｡˚ Biblioteca ⟢ Baileys
-˚ ♡ ⋆｡˚ Canal ⟢ https://whatsapp.com/channel/0029VbBUHyQCsU9IpJ0oIO2i
-✧˖°⊹ ─────────────── ⊹°˖✧
-      🌸 *HERRAMIENTAS* 🌸
-❀ /autoadmin
-> hace admin al bot
-❀ /ping
-> comprueba el tiempo de respuesta 
-❀/demote
-> descarta a un usuario como admin 
-❀ /join
-> el bot se une a otro
-❀ /quitar prefijo
-> quita el prefijo de comandos 
-❀ /update
-> actulizar bot
-❀ /setprefijo
-> poner prefijo de comandos 
-❀ /bots
-> ver listo de subbots 
-❀ /delprimary 
-> elimina el bot primario 
-❀ /delprimary2
-> elimina al segundo bot primario 
-❀ /leave
-> salir de un grupo 
-❀ /logotipo
-> poner logo
-❀ /reload
-> reactivar el bot
-❀ /setbanner
-> poner banner 
-❀ /setcurrency
-> poner moneda 
-❀ /setname
-> poner nombre 
-❀ /setprimary
-> elegir bot primario 
-❀ /tag
-> menciana a todos los usuarios 
-❀ /invocar
-> invocar al grupo 
-❀ /sticker
-> hacer sticker
-❀ /kick
-> elimina a un usuario  
-❀ /antilink
-> anti enlace 
-❀ /del
-> elimina un mensaje
-❀ /reg
-> regístrate en el bot
-❀ /creador
-> lista de los creadores del bot
-❀ /repo
-> muestra el repositorio del bot 
-❀ /link
-> muestra los enlaces oficiales 
-          🌸 𝐅𝐔𝐍 🌸
-❀ /doxear
-> simula un doxeo
-❀ /facto
-> tira un facto aleatorio
-❀ /piropo
-> tira un piropo
-❀ /reto 
-> el bot te reta
-❀ /top <texto>
-> top 10 de una categoría 
-❀ /iqtest
-> el bot hace un test de tu iq
-❀ /gey <usuario>
-> el bot muestra a un gay
-         🌸 𝗔𝗡𝗜𝗠𝗘 🌸
-❀ /bath  
-> Bañarse
-❀ /bite  
-> Morder
-❀ /blush  
-> Sonrojarse
-❀ /bored  
-> Estar aburrido
-❀ /buenas-noches  
-> Desear buenas noches
-❀ /buenos-dias  
-> Desear buenos días
-❀ /cry  
-> Llorar
-❀ /dance  
-> Bailar
-❀ /fumar  
-> Fumar
-❀ /hug  
-> Abrazar
-❀ /kiss  
-> Besar
-❀ /pensar  
-> Pensar
-❀ /sacred  
-> asustado 
-❀ /slap  
-> Dar una cachetada
-❀ /sleep  
-> Dormir
-       🌸 *IA* 🌸
-❀ /copilot  
-> habla con copilot 
-❀ /gemini  
-> habla con gemini
-❀ /GPT
-> habla con ChatGPT 
-     🌸 *DESCARGAS* 🌸
-❀ /play  
-> Descargar música desde YouTube  
-❀ /play2  
-> Descargar videos desde YouTube  
-❀ /tiktoksearch  
-> Buscar contenido en TikTok para descargar
-❀ /ig
-> descarga archivos de Instagram
-❀ /APK
-> descarga una aplicación
-❀ /pin
-> descargar archivos de pinterest 
-           🌸 *RPG* 🌸
-❀ /cazar  
-> inicia una misión de caza
-❀ /contratos  
-> muestra contratos especiales
-❀ /aceptar <id>  
-> acepta un contrato del tablero
-❀ /completar  
-> completa el contrato activo
-❀ /perfil  
-> muestra tus estadísticas
-❀ /diario  
-> reclama recompensa diaria
-❀ /minar  
-> mina criptomonedas
-❀ /transferir @usuario cantidad  
-> envía créditos a otro jugador
-❀ /taller  
-> abre la tienda de mejoras
-❀ /comprar <objeto>  
-> compra un ítem del taller
-❀ /comprar.boy <objeto>  
-> compra un objeto especial
-❀ /item  
-> muestra información de un objeto
-❀ /vender <objeto>  
-> vende un ítem de tu inventario
-❀ /duelo @usuario  
-> reta a un duelo pvp
-❀ /hack  
-> hackea sistemas para ganar recompensas
-❀ /best  
-> ranking de mejores jugadores
-❀ /estadisticas  
-> muestra stats detalladas
-❀ /inventario  
-> revisa tu equipo disponible
+╭─⊷ *HERRAMIENTAS*
+│ ๖ۣۜ҉➢ autoadmin - Hace admin al bot
+│ ๖ۣۜ҉➢ ping - Comprueba el tiempo de respuesta
+│ ๖ۣۜ҉➢ demote - Descarta a un usuario como admin
+│ ๖ۣۜ҉➢ join - El bot se une a otro grupo
+│ ๖ۣۜ҉➢ quitar prefijo - Quita el prefijo de comandos
+│ ๖ۣۜ҉➢ update - Actualizar bot
+│ ๖ۣۜ҉➢ setprefijo - Poner prefijo de comandos
+│ ๖ۣۜ҉➢ bots - Ver lista de subbots
+│ ๖ۣۜ҉➢ delprimary - Elimina el bot primario
+│ ๖ۣۜ҉➢ delprimary2 - Elimina al segundo bot primario
+│ ๖ۣۜ҉➢ leave - Salir de un grupo
+│ ๖ۣۜ҉➢ logotipo - Poner logo
+│ ๖ۣۜ҉➢ reload - Reactivar el bot
+│ ๖ۣۜ҉➢ setbanner - Poner banner
+│ ๖ۣۜ҉➢ setcurrency - Poner moneda
+│ ๖ۣۜ҉➢ setname - Poner nombre
+│ ๖ۣۜ҉➢ setprimary - Elegir bot primario
+│ ๖ۣۜ҉➢ tag - Menciona a todos los usuarios
+│ ๖ۣۜ҉➢ invocar - Invocar al grupo
+│ ๖ۣۜ҉➢ sticker - Hacer sticker
+│ ๖ۣۜ҉➢ kick - Elimina a un usuario
+│ ๖ۣۜ҉➢ antilink - Anti enlace
+│ ๖ۣۜ҉➢ del - Elimina un mensaje
+│ ๖ۣۜ҉➢ reg - Regístrate en el bot
+│ ๖ۣۜ҉➢ creador - Lista de los creadores del bot
+│ ๖ۣۜ҉➢ repo - Muestra el repositorio del bot
+│ ๖ۣۜ҉➢ link - Muestra los enlaces oficiales
+╰─────────────⊷
 
-       🌸 *ECONOMÍA* 🌸
+╭─⊷ *DIVERSIÓN*
+│ ๖ۣۜ҉➢ doxear - Simula un doxeo
+│ ๖ۣۜ҉➢ facto - Tira un facto aleatorio
+│ ๖ۣۜ҉➢ piropo - Tira un piropo
+│ ๖ۣۜ҉➢ reto - El bot te reta
+│ ๖ۣۜ҉➢ top <texto> - Top 10 de una categoría
+│ ๖ۣۜ҉➢ iqtest - El bot hace un test de tu IQ
+│ ๖ۣۜ҉➢ gey <usuario> - El bot muestra a un gay
+╰─────────────⊷
 
-❀ /balance  
-> Ver tu saldo actual
-❀ /daily  
-> Reclamar recompensa diaria
-❀ /trabajar  
-> Realiza un trabajo para ganar monedas
-❀ /trabajos  
-> Ver lista de trabajos disponibles
-❀ /aceptartrabajo  
-> Aceptar un trabajo de la lista
-❀ /renunciar  
-> Renunciar a tu trabajo actual
-❀ /casino  
-> Accede al casino para apostar
-❀ /tienda  
-> Ver la tienda de objetos disponibles
-❀ /comprar  
-> Comprar un objeto de la tienda
-❀ /vender  
-> Vender un objeto del inventario
-❀ /items  
-> Ver tus objetos e inventario
-❀ /usar  
-> Usar un objeto del inventario
-❀ /loteria  
-> Participar en la lotería
-❀ /topcoins  
-> Ver el ranking de usuarios con más monedas
-❀ /pay  
-> Enviar monedas a otro usuario
-❀ /economia  
-> Ver tus estadísticas económicas
-  
-✧˖°⊹ ─────────────── ⊹°˖✧
+╭─⊷ *ANIME*
+│ ๖ۣۜ҉➢ bath - Bañarse
+│ ๖ۣۜ҉➢ bite - Morder
+│ ๖ۣۜ҉➢ blush - Sonrojarse
+│ ๖ۣۜ҉➢ bored - Estar aburrido
+│ ๖ۣۜ҉➢ buenas-noches - Desear buenas noches
+│ ๖ۣۜ҉➢ buenos-dias - Desear buenos días
+│ ๖ۣۜ҉➢ cry - Llorar
+│ ๖ۣۜ҉➢ dance - Bailar
+│ ๖ۣۜ҉➢ fumar - Fumar
+│ ๖ۣۜ҉➢ hug - Abrazar
+│ ๖ۣۜ҉➢ kiss - Besar
+│ ๖ۣۜ҉➢ pensar - Pensar
+│ ๖ۣۜ҉➢ sacred - Asustado
+│ ๖ۣۜ҉➢ slap - Dar una cachetada
+│ ๖ۣۜ҉➢ sleep - Dormir
+╰─────────────⊷
+
+╭─⊷ *INTELIGENCIA ARTIFICIAL*
+│ ๖ۣۜ҉➢ copilot - Habla con Copilot
+│ ๖ۣۜ҉➢ gemini - Habla con Gemini
+│ ๖ۣۜ҉➢ GPT - Habla con ChatGPT
+╰─────────────⊷
+
+╭─⊷ *DESCARGAS*
+│ ๖ۣۜ҉➢ play - Descargar música desde YouTube
+│ ๖ۣۜ҉➢ play2 - Descargar videos desde YouTube
+│ ๖ۣۜ҉➢ tiktoksearch - Buscar contenido en TikTok para descargar
+│ ๖ۣۜ҉➢ ig - Descarga archivos de Instagram
+│ ๖ۣۜ҉➢ APK - Descarga una aplicación
+│ ๖ۣۜ҉➢ pin - Descargar archivos de Pinterest
+╰─────────────⊷
+
+╭─⊷ *RPG*
+│ ๖ۣۜ҉➢ cazar - Inicia una misión de caza
+│ ๖ۣۜ҉➢ contratos - Muestra contratos especiales
+│ ๖ۣۜ҉➢ aceptar <id> - Acepta un contrato del tablero
+│ ๖ۣۜ҉➢ completar - Completa el contrato activo
+│ ๖ۣۜ҉➢ perfil - Muestra tus estadísticas
+│ ๖ۣۜ҉➢ diario - Reclama recompensa diaria
+│ ๖ۣۜ҉➢ minar - Mina criptomonedas
+│ ๖ۣۜ҉➢ transferir @usuario cantidad - Envía créditos a otro jugador
+│ ๖ۣۜ҉➢ taller - Abre la tienda de mejoras
+│ ๖ۣۜ҉➢ comprar <objeto> - Compra un ítem del taller
+│ ๖ۣۜ҉➢ comprar.boy <objeto> - Compra un objeto especial
+│ ๖ۣۜ҉➢ item - Muestra información de un objeto
+│ ๖ۣۜ҉➢ vender <objeto> - Vende un ítem de tu inventario
+│ ๖ۣۜ҉➢ duelo @usuario - Reta a un duelo PVP
+│ ๖ۣۜ҉➢ hack - Hackea sistemas para ganar recompensas
+│ ๖ۣۜ҉➢ best - Ranking de mejores jugadores
+│ ๖ۣۜ҉➢ estadisticas - Muestra stats detalladas
+│ ๖ۣۜ҉➢ inventario - Revisa tu equipo disponible
+╰─────────────⊷
+
+╭─⊷ *ECONOMÍA*
+│ ๖ۣۜ҉➢ balance - Ver tu saldo actual
+│ ๖ۣۜ҉➢ daily - Reclamar recompensa diaria
+│ ๖ۣۜ҉➢ trabajar - Realiza un trabajo para ganar monedas
+│ ๖ۣۜ҉➢ trabajos - Ver lista de trabajos disponibles
+│ ๖ۣۜ҉➢ aceptartrabajo - Aceptar un trabajo de la lista
+│ ๖ۣۜ҉➢ renunciar - Renunciar a tu trabajo actual
+│ ๖ۣۜ҉➢ casino - Accede al casino para apostar
+│ ๖ۣۜ҉➢ tienda - Ver la tienda de objetos disponibles
+│ ๖ۣۜ҉➢ comprar - Comprar un objeto de la tienda
+│ ๖ۣۜ҉➢ vender - Vender un objeto del inventario
+│ ๖ۣۜ҉➢ items - Ver tus objetos e inventario
+│ ๖ۣۜ҉➢ usar - Usar un objeto del inventario
+│ ๖ۣۜ҉➢ loteria - Participar en la lotería
+│ ๖ۣۜ҉➢ topcoins - Ver el ranking de usuarios con más monedas
+│ ๖ۣۜ҉➢ pay - Enviar monedas a otro usuario
+│ ๖ۣۜ҉➢ economia - Ver tus estadísticas económicas
+╰─────────────⊷
+
+*Hola @${userId.split('@')[0]}, mi nombre es ${botname}*
 `.trim()
 
   await conn.sendMessage(m.chat, {
@@ -248,5 +166,4 @@ function clockString(ms) {
   let minutes = Math.floor((ms / (1000 * 60)) % 60)
   let hours = Math.floor((ms / (1000 * 60 * 60)) % 24)
   return `${hours}h ${minutes}m ${seconds}s`
-
 }

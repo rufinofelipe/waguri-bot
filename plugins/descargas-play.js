@@ -61,7 +61,7 @@ const handler = async (m, { conn, text, command }) => {
 
     if (['play', 'yta', 'ytmp3', 'playaudio'].includes(command)) {
       try {
-        const audioAPI = `https://rest.alyabotpe.xyz/dl/ytmp3?url=${encodeURIComponent(url)}&key=${API_KEY}`
+        const audioAPI = `https://api.stellarwa.xyz/dl/ytmp3=${encodeURIComponent(url)}&key=${API_KEY}`
         const res = await fetch(audioAPI)
         const json = await res.json()
 

@@ -29,7 +29,7 @@ var handler = async (m, { usedPrefix, command }) => {
         }
 
         if (!hasErrors) {
-            response += '⚽️ ¡Todo está en orden! No se detectaron errores de sintaxis'
+            response += '🌸 ¡Todo está en orden! No se detectaron errores de sintaxis'
         }
 
         await conn.reply(m.chat, response, m)

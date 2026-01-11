@@ -1,189 +1,120 @@
+import fs from "fs"
+import path from "path"
 import fetch from "node-fetch"
-import yts from "yt-search"
+import yts from 'yt-search'
 
-const youtubeRegexID = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/
-
-const API_URL = "https://rest.alyabotpe.xyz/dl/ytmp3"
-const API_KEY = "stellar-SSfb2OPw"
-
-async function skyYT(url, format) {
-  const response = await fetch(`${API_BASE}/api/download/yt.php?url=${encodeURIComponent(url)}&format=${format}`, {
-    headers: { 
-      Authorization: `Bearer ${API_KEY}`,
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-    },
-    timeout: 60000
-  })
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`)
-  }
-
-  const data = await response.json()
-
-  if (!data || data.status !== "true" || !data.data) {
-    throw new Error(data?.error || "Error en la API Sky")
-  }
-
-  return data.data
-}
-
-function formatDuration(seconds) {
-  if (!seconds) return "Desconocida"
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const secs = Math.floor(seconds % 60)
-  
-  if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-  }
-  return `${minutes}:${secs.toString().padStart(2, '0')}`
-}
+const API_KEY = 'stellar-SSfb2OPw'
+const youtubeRegexID = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/
 
 const handler = async (m, { conn, text, command }) => {
   try {
-    if (!text.trim()) {
-      return conn.reply(m.chat, `✧ 𝙃𝙚𝙮! Debes escribir *el nombre o link* del video/audio para descargar.`, m)
+    if (!text.trim()) return conn.reply(m.chat, `🌸 Por favor, ingresa el nombre de la música a descargar.`, m)
+
+    let videoIdToFind = text.match(youtubeRegexID)
+    let ytSearch = await yts(videoIdToFind ? 'https://youtu.be/' + videoIdToFind[1] : text)
+
+    if (videoIdToFind) {
+      const videoId = videoIdToFind[1]
+      ytSearch = ytSearch.all.find(item => item.videoId === videoId) || ytSearch.videos.find(item => item.videoId === videoId)
     }
 
-    await conn.sendMessage(m.chat, { react: { text: "⏳", key: m.key }})
+    ytSearch = ytSearch.all?.[0] || ytSearch.videos?.[0] || ytSearch
+    if (!ytSearch || ytSearch.length === 0) return m.reply('✧ No se encontraron resultados para tu búsqueda.')
 
-    // Obtener usuario
-    const userName = m.pushName || "Usuario"
-    const currentDate = new Date().toLocaleDateString('es-ES')
-    const currentTime = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
-    
-    let videoIdToFind = text.match(youtubeRegexID) || null
-    let searchResults
-    
-    try {
-      if (videoIdToFind) {
-        searchResults = await yts({ videoId: videoIdToFind[1] })
-      } else {
-        searchResults = await yts(text)
-      }
-    } catch (error) {
-      await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key }})
-      return m.reply("⚠︎ Error al buscar en YouTube. Intenta con otro nombre.")
-    }
-
-    let ytplay2 = searchResults.videos?.[0] || searchResults
-    
-    if (!ytplay2 || !ytplay2.videoId) {
-      await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key }})
-      return m.reply("⚠︎ No encontré resultados, intenta con otro nombre o link.")
-    }
-
-    let { title, thumbnail, timestamp, views, ago, url, author } = ytplay2
+    let { title, thumbnail, timestamp, views, ago, url, author } = ytSearch
     const vistas = formatViews(views)
-    const canal = author?.name || "Desconocido"
-    const duration = formatDuration(timestamp)
-    
-    // Definir variables para el mensaje
-    const botname = "Waguri Bot"
-    const dev = "Desarrollador"
-    const serverName = "Servidor Principal"
-    const originalUrl = url
-    const format = "MP3"
-    const quality = "128kbps"
+    const canalLink = author?.url || 'Desconocido'
 
     const infoMessage = `
-ㅤ۫ ㅤ  🌸 *¡WAGURI BOT DOWNLOAD!* 🌸
+⚽ 𝗬𝗼𝘂𝗧𝘂𝗯𝗲 𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱 | 𝗪𝗮𝗴𝘂𝗿𝗶
 
-📦 *ARCHIVO DESCARGADO* 📦
-━━━━━━━━━━━━━━━━━━━━━━━━━
-🎵 *Título:* ${title}
-🎤 *Artista/Canal:* ${canal}
-⏱️ *Duración:* ${duration}
-👁️ *Vistas:* ${vistas}
-📅 *Publicado:* ${ago || "Desconocido"}
-📁 *Formato:* ${format}
-🔄 *Calidad:* ${quality}
-━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━
 
-👤 *Usuario:* ${userName}
-🕐 *Hora:* ${currentTime}
-📅 *Fecha:* ${currentDate}
-🖥️ *Servidor:* ${serverName}
+⚡ 𝗧𝗶𝘁𝘂𝗹𝗼: *${title || 'Desconocido'}*
+👁️ 𝗩𝗶𝘀𝘁𝗮𝘀: *${vistas}*
+⏱️ 𝗗𝘂𝗿𝗮𝗰𝗶𝗼𝗻: *${timestamp}*
+📅 𝗣𝘂𝗯𝗹𝗶𝗰𝗮𝗱𝗼: *${ago}*
+🔗 𝗘𝗻𝗹𝗮𝗰𝗲: ${url}
+📺 𝗖𝗮𝗻𝗮𝗹: ${canalLink}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━
-✨ *¡Archivo listo para disfrutar!*
-🎧 *Reproduce y comparte con amigos*
+━━━━━━━━━━━━━━━━━━━━━━━
+🌸 𝗣𝗿𝗲𝗽𝗮𝗿𝗮𝗻𝗱𝗼 𝘁𝘂 𝗮𝗿𝗰𝗵𝗶𝘃𝗼...
+`
 
-━━━━━━━━━━━━━━━━━━━━━━━━━
-🔗 *Enlace original:* 
-${originalUrl}
-
-🌸 *Gracias por usar waguri bot*
-💫 *¡Tu descarga ha sido exitosa!*
-    `.trim()
-
-    try {
-      const thumb = thumbnail ? (await conn.getFile(thumbnail))?.data : null
-      
-      await conn.reply(m.chat, infoMessage, m, thumb ? {
-        contextInfo: {
-          externalAdReply: {
-            title: botname,
-            body: "Descarga de audio",
-            mediaType: 1,
-            thumbnail: thumb,
-            renderLargerThumbnail: true,
-            mediaUrl: url,
-            sourceUrl: url
-          }
-        }
-      } : undefined)
-    } catch (thumbError) {
-      // Enviar mensaje sin miniatura si hay error
-      await conn.reply(m.chat, infoMessage, m)
+    const thumb = (await conn.getFile(thumbnail))?.data
+    const JT = {
+      contextInfo: {
+        externalAdReply: {
+          title: botname,
+          body: dev,
+          mediaType: 1,
+          previewType: 0,
+          mediaUrl: url,
+          sourceUrl: url,
+          thumbnail: thumb,
+          renderLargerThumbnail: true,
+        },
+      },
     }
 
-    let audioData = null
-    try {
-      const d = await skyYT(url, "audio")
-      const mediaUrl = d.audio || d.video || d.url || d.link
-      if (mediaUrl) {
-        audioData = { 
-          link: mediaUrl, 
-          title: (d.title || title).replace(/[^\w\s]/gi, '').substring(0, 50) 
+    await conn.reply(m.chat, infoMessage, m, JT)
+
+    if (['play', 'yta', 'ytmp3', 'playaudio'].includes(command)) {
+      try {
+        const audioAPI = `https://rest.alyabotpe.xyz/dl/ytmp3?url=${encodeURIComponent(url)}&key=${API_KEY}`
+        const res = await fetch(audioAPI)
+        const json = await res.json()
+
+        if (json.status && json.data && json.data.dl) {
+          await conn.sendMessage(m.chat, {
+            audio: { url: json.data.dl },
+            fileName: `${json.data.title || 'audio'}.mp3`,
+            mimetype: 'audio/mpeg',
+            ptt: false
+          }, { quoted: m })
+        } else {
+          throw new Error('No se pudo obtener el audio')
         }
+      } catch (e) {
+        return conn.reply(m.chat, `🌸 ¡Fallo en la descarga de audio! ${e.message}`, m)
       }
-    } catch (apiError) {
-      console.error("Error en API Sky:", apiError)
+    } else if (['play2', 'ytv', 'ytmp4'].includes(command)) {
+      try {
+        const videoAPI = `https://rest.alyabotpe.xyz/dl/ytmp4?url=${encodeURIComponent(url)}&quality=144&key=${API_KEY}`
+        const res = await fetch(videoAPI)
+        const json = await res.json()
+
+        if (json.status && json.data && json.data.dl) {
+          await conn.sendMessage(m.chat, {
+            video: { url: json.data.dl },
+            fileName: `${json.data.title || 'video'}.mp4`,
+            mimetype: 'video/mp4'
+          }, { quoted: m })
+        } else {
+          throw new Error('No se pudo obtener el video')
+        }
+      } catch (e) {
+        return conn.reply(m.chat, `🌸 ¡Fallo en la descarga de video! ${e.message}`, m)
+      }
+    } else {
+      return conn.reply(m.chat, '✧︎ Comando no reconocido.', m)
     }
-
-    if (!audioData) {
-      await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key }})
-      return conn.reply(m.chat, "✦ No se pudo descargar el audio. Intenta más tarde.", m)
-    }
-
-    await conn.sendMessage(m.chat, {
-      audio: { url: audioData.link },
-      fileName: `${audioData.title || "music"}.mp3`,
-      mimetype: "audio/mpeg",
-      ptt: false
-    }, { quoted: m })
-
-    await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key }})
 
   } catch (error) {
-    console.error("Error general:", error)
-    await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key }})
-    return m.reply(`⚠︎ Error inesperado:\n\n${error.message || error}`)
+    return m.reply(`⚠︎ Ocurrió un error: ${error.message}`)
   }
 }
 
-handler.help = ["play"]
-handler.tags = ["descargas"]
-handler.command = ["play", "playaudio"]
+handler.command = handler.help = ['play', 'yta', 'ytmp3', 'play2', 'ytv', 'ytmp4', 'playaudio']
+handler.tags = ['descargas']
+handler.group = true
 
 export default handler
 
 function formatViews(views) {
-  if (!views || isNaN(views)) return "No disponible"
-  if (views >= 1_000_000_000) return `${(views / 1_000_000_000).toFixed(1)}B`
-  if (views >= 1_000_000) return `${(views / 1_000_000).toFixed(1)}M`
-  if (views >= 1_000) return `${(views / 1_000).toFixed(1)}k`
+  if (!views) return "No disponible"
+  if (views >= 1_000_000_000) return `${(views / 1_000_000_000).toFixed(1)}B (${views.toLocaleString()})`
+  if (views >= 1_000_000) return `${(views / 1_000_000).toFixed(1)}M (${views.toLocaleString()})`
+  if (views >= 1_000) return `${(views / 1_000).toFixed(1)}k (${views.toLocaleString()})`
   return views.toString()
 }

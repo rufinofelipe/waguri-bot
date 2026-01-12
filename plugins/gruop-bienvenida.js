@@ -56,9 +56,6 @@ async function generarBienvenida({ conn, userId, groupMetadata, chat }) {
         
         // Plantilla por defecto más completa
         const plantillaDefault = `¡Bienvenid@ {usuario} al grupo *{grupo}*! 🎉
-        
-📝 *Descripción del grupo:*
-{desc}
 
 👥 *Ahora somos:* ${groupSize} miembros
 📅 *Fecha:* ${fecha}
@@ -84,7 +81,6 @@ Para ver los comandos disponibles usa: #help`
 
 👤 *Usuario:* ${username}
 🏷️ *Grupo:* ${groupMetadata.subject}
-📋 *Descripción:* ${desc}
 👥 *Miembros:* ${groupSize}
 📅 *Fecha y hora:* ${fecha}
 
@@ -132,9 +128,6 @@ async function generarDespedida({ conn, userId, groupMetadata, chat }) {
         
         // Plantilla por defecto
         const plantillaDefault = `Lamentamos tu partida {usuario} del grupo *{grupo}* 😔
-        
-📝 *Descripción del grupo:*
-{desc}
 
 👥 *Ahora somos:* ${groupSize} miembros
 📅 *Fecha:* ${fecha}
@@ -156,7 +149,6 @@ async function generarDespedida({ conn, userId, groupMetadata, chat }) {
 
 👤 *Usuario que se va:* ${username}
 🏷️ *Grupo:* ${groupMetadata.subject}
-📋 *Descripción:* ${desc}
 👥 *Miembros restantes:* ${groupSize}
 📅 *Fecha y hora:* ${fecha}
 

@@ -301,9 +301,6 @@ let handler = async (m, { conn }) => {
  ❀ /renunciar  
  > Renunciar a tu trabajo actual
 
- ❀ /casino  
- > Accede al casino para apostar
-
  ❀ /tienda  
  > Ver la tienda de objetos disponibles
 

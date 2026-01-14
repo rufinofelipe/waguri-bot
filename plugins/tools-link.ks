@@ -1,3 +1,4 @@
+// by Rufino 
 async function handler(m, { conn }) {
     const communityLink = 'https://chat.whatsapp.com/LRQrf8vv50BDtwN8JWfhrX';
     const channelLink = 'https://whatsapp.com/channel/0029VbBUHyQCsU9IpJ0oIO2i';

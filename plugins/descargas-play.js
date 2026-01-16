@@ -1,12 +1,14 @@
+import fs from "fs"
+import path from "path"
 import fetch from "node-fetch"
 import yts from 'yt-search'
 
-const API_KEY = 'stellar-NpSITguV'
+const API_KEY = 'stellar-dXXUtmL2'
 const youtubeRegexID = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/
 
 const handler = async (m, { conn, text, command }) => {
   try {
-    if (!text.trim()) return conn.reply(m.chat, `🌸 Por favor, ingresa el nombre de la música o video a descargar.`, m)
+    if (!text.trim()) return conn.reply(m.chat, `🌸 Por favor, ingresa el nombre de la música a descargar.`, m)
 
     let videoIdToFind = text.match(youtubeRegexID)
     let ytSearch = await yts(videoIdToFind ? 'https://youtu.be/' + videoIdToFind[1] : text)
@@ -57,58 +59,41 @@ const handler = async (m, { conn, text, command }) => {
 
     await conn.reply(m.chat, infoMessage, m, JT)
 
-    // Comandos para audio (música)
     if (['play', 'yta', 'ytmp3', 'playaudio'].includes(command)) {
       try {
-        const audioAPI = `https://rest.alyabotpe.xyz/dl/youtubeplay?url=${encodeURIComponent(url)}&stellar=${API_KEY}`
-        console.log('Solicitando audio desde:', audioAPI)
-        
+        const audioAPI = `https://rest.alyabotpe.xyz/dl/ytmp3?url=${encodeURIComponent(url)}&key=${API_KEY}`
         const res = await fetch(audioAPI)
         const json = await res.json()
-        console.log('Respuesta de audio API:', JSON.stringify(json, null, 2))
-        
-        // Diferentes posibles estructuras de respuesta
-        let audioUrl = json.download || json.url || json.result?.url || json.data?.url
-        
-        if (audioUrl) {
+
+        if (json.status && json.data && json.data.dl) {
           await conn.sendMessage(m.chat, {
-            audio: { url: audioUrl },
-            fileName: `${title.replace(/[^\w\s]/gi, '') || 'audio'}.mp3`,
+            audio: { url: json.data.dl },
+            fileName: `${json.data.title || 'audio'}.mp3`,
             mimetype: 'audio/mpeg',
             ptt: false
           }, { quoted: m })
         } else {
-          throw new Error(`Estructura de respuesta inesperada: ${JSON.stringify(json)}`)
+          throw new Error('No se pudo obtener el audio')
         }
       } catch (e) {
-        console.error('Error en descarga de audio:', e)
         return conn.reply(m.chat, `🌸 ¡Fallo en la descarga de audio! ${e.message}`, m)
       }
-    } 
-    // Comandos para video
-    else if (['play2', 'ytv', 'ytmp4'].includes(command)) {
+    } else if (['play2', 'ytv', 'ytmp4'].includes(command)) {
       try {
-        const videoAPI = `https://rest.alyabotpe.xyz/dl/ytmp4?url=${encodeURIComponent(url)}&stellar=${API_KEY}`
-        console.log('Solicitando video desde:', videoAPI)
-        
+        const videoAPI = `https://rest.alyabotpe.xyz/dl/ytmp4?url=${encodeURIComponent(url)}&quality=144&key=${API_KEY}`
         const res = await fetch(videoAPI)
         const json = await res.json()
-        console.log('Respuesta de video API:', JSON.stringify(json, null, 2))
-        
-        // Diferentes posibles estructuras de respuesta
-        let videoUrl = json.download || json.url || json.result?.url || json.data?.url
-        
-        if (videoUrl) {
+
+        if (json.status && json.data && json.data.dl) {
           await conn.sendMessage(m.chat, {
-            video: { url: videoUrl },
-            fileName: `${title.replace(/[^\w\s]/gi, '') || 'video'}.mp4`,
+            video: { url: json.data.dl },
+            fileName: `${json.data.title || 'video'}.mp4`,
             mimetype: 'video/mp4'
           }, { quoted: m })
         } else {
-          throw new Error(`Estructura de respuesta inesperada: ${JSON.stringify(json)}`)
+          throw new Error('No se pudo obtener el video')
         }
       } catch (e) {
-        console.error('Error en descarga de video:', e)
         return conn.reply(m.chat, `🌸 ¡Fallo en la descarga de video! ${e.message}`, m)
       }
     } else {
@@ -116,7 +101,6 @@ const handler = async (m, { conn, text, command }) => {
     }
 
   } catch (error) {
-    console.error('Error general:', error)
     return m.reply(`⚠︎ Ocurrió un error: ${error.message}`)
   }
 }

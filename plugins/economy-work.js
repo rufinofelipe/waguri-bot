@@ -84,7 +84,7 @@ let handler = async (m, { conn }) => {
 
   user.coin = Number(user.coin) || 0
 
-  const cooldown = 3600000 // 1 hora - cámbialo a 0 para pruebas sin espera
+  const cooldown = 0 // 1 hora - cámbialo a 0 para pruebas sin espera
   const now = Date.now()
 
   if (user.lastWork && now - user.lastWork < cooldown) {

@@ -1,5 +1,3 @@
-// by Rufino 
-
 import fs from 'fs'
 import path from 'path'
 
@@ -64,19 +62,22 @@ let handler = async (m, { conn }) => {
   if (!db.users) db.users = {}
   
   let user = db.users[m.sender]
+  let isNew = !user
+
   if (!user) {
     user = db.users[m.sender] = {
-      wallet: 0,
+      wallet: 1000,   // bono inicial solo para nuevos usuarios
       bank: 0,
       lastDaily: 0,
       lastWork: 0,
       lastRob: 0
     }
+  } else {
+    user.wallet = Number(user.wallet) || 0
+    user.bank = Number(user.bank) || 0
   }
 
-  user.wallet = Number(user.wallet) || 0
-
-  const cooldown = 3600000 // 1 hora → pon 0 si no quieres límite
+  const cooldown = 3600000 // 1 hora → cámbialo a 0 si quieres sin límite
   const now = Date.now()
 
   if (user.lastWork && now - user.lastWork < cooldown) {
@@ -93,9 +94,11 @@ let handler = async (m, { conn }) => {
 
   fs.writeFileSync(dbPath, JSON.stringify(db, null, 2))
 
-  // ¡Aquí está la clave! Usa BACKTICKS (`) para que funcione la interpolación
-  let mensaje = `🌸 Trabajaste como **${trabajo.nombre}**
-💰 Ganaste *${ganancia} Waguri Coins* 🪙`
+  let mensaje = `🌸 Trabajaste como **\( {trabajo.nombre}**\n💰 Ganaste * \){ganancia} Waguri Coins* 🪙`
+
+  if (isNew) {
+    mensaje += `\n\n¡Bienvenido! Te dimos **1000 Waguri Coins** de regalo para empezar ✨`
+  }
 
   conn.reply(m.chat, mensaje, m)
 }

@@ -4,12 +4,19 @@ import path from 'path'
 const dbPath = path.join(process.cwd(), 'database.json')
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
-  let db = JSON.parse(fs.readFileSync(dbPath, 'utf-8') || '{}')
+  let db
+  try {
+    db = JSON.parse(fs.readFileSync(dbPath, 'utf-8') || '{}')
+  } catch (e) {
+    return conn.reply(m.chat, 'Error al leer la base de datos. Contacta al dueño.', m)
+  }
+
   if (!db.users) db.users = {}
   
-  let user = db.users[m.sender]
+  let userId = m.sender
+  let user = db.users[userId]
   if (!user) {
-    user = db.users[m.sender] = {
+    user = db.users[userId] = {
       wallet: 0,
       bank: 0,
       lastDaily: 0,
@@ -18,35 +25,39 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     }
   }
 
-  // Prevenir NaN
   user.wallet = Number(user.wallet) || 0
   user.bank   = Number(user.bank)   || 0
 
-  // Obtener cantidad del mensaje
+  // Mensaje de debug (puedes comentarlo después)
+  let debug = `Debug:\nTu ID: \( {userId}\nWallet actual: \){user.wallet}\nBank actual: ${user.bank}`
+
   if (!text) {
-    return conn.reply(m.chat, `🌸 Usa: *\( {usedPrefix + command} <cantidad>*\nEjemplo: \){usedPrefix + command} 500`, m)
+    return conn.reply(m.chat, `\( {debug}\n\nUsa: * \){usedPrefix + command} <cantidad>*\nEj: ${usedPrefix + command} 500`, m)
   }
 
   let cantidad = Number(text.trim())
   if (isNaN(cantidad) || cantidad <= 0) {
-    return conn.reply(m.chat, `🌸 La cantidad debe ser un número positivo.`, m)
+    return conn.reply(m.chat, `${debug}\n\nCantidad inválida. Debe ser un número positivo.`, m)
   }
 
   if (cantidad > user.wallet) {
-    return conn.reply(m.chat, `🌸 No tienes suficientes Waguri Coins en mano.\nTienes solo ${user.wallet} en cartera.`, m)
+    return conn.reply(m.chat, `\( {debug}\n\nNo tienes suficientes. Solo tienes \){user.wallet} en mano.`, m)
   }
 
-  // Transferir
   user.wallet -= cantidad
   user.bank += cantidad
 
-  fs.writeFileSync(dbPath, JSON.stringify(db, null, 2))
+  try {
+    fs.writeFileSync(dbPath, JSON.stringify(db, null, 2))
+  } catch (e) {
+    return conn.reply(m.chat, 'Error al guardar la base de datos.', m)
+  }
 
-  let txt = `🌸 *¡Depósito realizado con éxito!*
+  let txt = `🌸 *Depósito exitoso!*
 
-Depositaste **${cantidad} Waguri Coins** 🪙 al banco.
+Depositaste **${cantidad} Waguri Coins** al banco.
 
-Saldo actual:
+Ahora tienes:
 En mano: **${user.wallet}**
 En banco: **${user.bank}** ✨`
 

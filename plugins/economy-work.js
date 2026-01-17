@@ -1,24 +1,20 @@
-let handler = async (m, { conn, text, usedPrefix }) => {
-  // Mensaje de prueba inmediato para ver si el comando se ejecuta
-  conn.reply(m.chat, '¡El comando !trabajar se ejecutó! Ahora vamos a ver si hay error...', m)
+let handler = async (m, { conn }) => {
+  // Mensaje de prueba para confirmar que el comando se ejecuta
+  conn.reply(m.chat, '¡El comando !trabajar se ejecutó correctamente! 🎉\n\nSi ves esto, el handler funciona. Ahora vamos a probar más cosas.', m)
 
-  // Intento de leer DB
-  let db
-  try {
-    db = JSON.parse(fs.readFileSync('./database.json', 'utf-8') || '{}')
-    conn.reply(m.chat, 'DB leída correctamente. Usuarios: ' + Object.keys(db.users || {}).length, m)
-  } catch (e) {
-    conn.reply(m.chat, 'Error al leer database.json: ' + e.message, m)
-    return
-  }
+  // Segundo mensaje para confirmar que llega hasta aquí
+  conn.reply(m.chat, 'Segundo mensaje: todo bien hasta aquí. 😎', m)
 
-  // Mensaje final para confirmar
-  conn.reply(m.chat, `🌸 Comando terminado sin crash. Prueba con !balance ahora.`, m)
+  // Tercer mensaje final (con variables simples para probar interpolación)
+  let prueba = 123
+  let texto = `Tercer mensaje: prueba = \( {prueba} \nSi ves 123, la interpolación con \) funciona.`
+  conn.reply(m.chat, texto, m)
 }
 
 handler.help = ['trabajar']
 handler.tags = ['economy']
-handler.command = /^(trabajar)$/i
+handler.command = /^(trabajar|work|job)$/i
 handler.group = true
+handler.register = true
 
 export default handler

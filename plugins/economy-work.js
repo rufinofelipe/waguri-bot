@@ -105,11 +105,12 @@ let handler = async (m, { conn }) => {
     return conn.reply(m.chat, 'Error al guardar los cambios 😔', m)
   }
 
-  let mensaje = `🌸 Trabajaste como **\( {trabajo.nombre}**\n💰 Ganaste * \){ganancia} Waguri Coins* 🪙`
+  let mensaje = `🌸 Trabajaste como **${trabajo.nombre}**
+💰 Ganaste *${ganancia} Waguri Coins* 🪙`
 
   if (isNewUser) {
-    mensaje += `\n\n¡Bienvenido! Te dimos **1000 Waguri Coins** de regalo ✨`
-  }
+  mensaje += `\n\n¡Bienvenido! Te dimos **1000 Waguri Coins** de regalo ✨`
+}
 
   conn.reply(m.chat, mensaje, m)
 }

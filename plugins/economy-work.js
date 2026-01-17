@@ -3,9 +3,9 @@
 import fs from 'fs'
 import path from 'path'
 
-const dbPath = path.join(process.cwd(), 'database.json') // Ajusta si tu database.json está en otro lugar
+const dbPath = path.join(process.cwd(), 'database.json')
 
-// Lista de 51 trabajos aleatorios (genéricos, ganancias variadas: algunos bajos, otros altos)
+// 51 trabajos aleatorios con ganancias variadas
 const trabajos = [
   { nombre: "limpiar casas", min: 50, max: 150 },
   { nombre: "cortar el césped del jardín", min: 60, max: 200 },
@@ -75,25 +75,30 @@ let handler = async (m, { conn, usedPrefix, command }) => {
     }
   }
 
-  const cooldown = 3600000 // 1 hora (3600 segundos)
+  // Prevenir NaN
+  user.wallet = Number(user.wallet) || 0
+
+  const cooldown = 3600000 // 1 hora → cambia a 0 si no quieres cooldown
   const now = Date.now()
 
   if (user.lastWork && now - user.lastWork < cooldown) {
     let remaining = cooldown - (now - user.lastWork)
     let minutes = Math.ceil(remaining / 60000)
-    return conn.reply(m.chat, `🌸 *Aún necesitas descansar...*\nFaltan ≈${minutes} minutos para poder trabajar otra vez.`, m)
+    return conn.reply(m.chat, `✨ Faltan ≈${minutes} minutos para poder trabajar otra vez.`, m)
   }
 
-  // Trabajo aleatorio
+  // Seleccionar trabajo y calcular ganancia
   let trabajo = trabajos[Math.floor(Math.random() * trabajos.length)]
   let ganancia = Math.floor(Math.random() * (trabajo.max - trabajo.min + 1)) + trabajo.min
 
-  user.wallet += ganancia
+  // Actualizar saldo y tiempo
+  user.wallet = user.wallet + ganancia
   user.lastWork = now
 
   fs.writeFileSync(dbPath, JSON.stringify(db, null, 2))
 
-  let txt = `🌸 *¡El universo del esfuerzo te recompensa!*\n\nTrabajaste como **\( {trabajo.nombre}**.\n\n💰 Ganaste * \){ganancia} Waguri Coins* 🪙\n\nTu cartera ahora tiene *${user.wallet} Waguri Coins*.\n¡Sigue adelante, trabajador incansable! 🔥`
+  // Mensaje MÍNIMO: solo trabajo y ganancia
+  let txt = `🌸 Trabajaste como **\( {trabajo.nombre}**\n💰 Ganaste * \){ganancia} Waguri Coins* 🪙`
 
   conn.reply(m.chat, txt, m)
 }

@@ -2,7 +2,7 @@
 import fetch from 'node-fetch';
 import { Sticker, StickerTypes } from 'wa-sticker-formatter';
 
-const API_KEY = 'stellar-NpSITguV';
+const API_KEY = 'stellar-dXXUtmL2';
 const API_URL = 'https://rest.alyabotpe.xyz/whatsapp/emojimix';
 
 async function handler(m, { text, conn }) {

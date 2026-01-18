@@ -1,6 +1,9 @@
-let handler = async (m, { conn }) => {
+let handler = m => m
+
+handler.before = async function (m, { conn }) {
     if (m.key.fromMe) return
     if (!m.isGroup && !m.chat.endsWith('@s.whatsapp.net')) return
+    if (m.text.length < 2) return // Ignorar mensajes muy cortos
 
     const texto = m.text.toLowerCase().trim()
     
@@ -20,16 +23,11 @@ let handler = async (m, { conn }) => {
         if (texto.includes(saludo)) {
             await conn.sendPresenceUpdate('composing', m.chat)
             await new Promise(r => setTimeout(r, 800))
-            return conn.reply(m.chat, respuesta, m)
+            await conn.reply(m.chat, respuesta, m)
+            return true // Importante: detener ejecución
         }
     }
+    return null
 }
-
-handler.help = ['autoresponder']
-handler.tags = ['general']
-handler.command = null  // Importante: sin comando específico
-handler.group = true
-handler.private = true
-handler.register = true
 
 export default handler

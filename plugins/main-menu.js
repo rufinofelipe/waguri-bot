@@ -288,50 +288,8 @@ let handler = async (m, { conn }) => {
  ┏━━━━━━━━━━━━━━━━━━┓
      💰 𝗘𝗖𝗢𝗡𝗢𝗠𝗜́𝗔
  ┗━━━━━━━━━━━━━━━━━━┛
- ❀ /balance  
- > Ver tu saldo actual
-
- ❀ /daily  
- > Reclamar recompensa diaria
-
- ❀ /trabajar  
- > Realiza un trabajo para ganar monedas
-
- ❀ /trabajos  
- > Ver lista de trabajos disponibles
-
- ❀ /aceptartrabajo  
- > Aceptar un trabajo de la lista
-
- ❀ /renunciar  
- > Renunciar a tu trabajo actual
-
- ❀ /tienda  
- > Ver la tienda de objetos disponibles
-
- ❀ /comprar  
- > Comprar un objeto de la tienda
-
-❀ /vender  
-> Vender un objeto del inventario
-
-❀ /items  
-> Ver tus objetos e inventario
-
-❀ /usar  
-> Usar un objeto del inventario
-
-❀ /loteria  
-> Participar en la lotería
-
-❀ /topcoins  
-> Ver el ranking de usuarios con más monedas
-
-❀ /pay  
-> Enviar monedas a otro usuario
-
-❀ /economia  
-> Ver tus estadísticas económicas
+ ❀ 
+> estos comandos están en mantenimiento estamos trabajando en un nuevo sistema de economía 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

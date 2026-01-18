@@ -32,7 +32,8 @@ let handler = async (m, { conn }) => {
     }
 }
 
-handler.before = true  // Esto es importante: hace que se ejecute ANTES de los comandos
+handler.help = 'responder'
+handler.comand = 'hola'
 handler.group = true
 handler.private = true  // Responde tanto en grupos como en privado
 

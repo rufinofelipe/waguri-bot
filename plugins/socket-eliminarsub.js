@@ -1,171 +1,181 @@
-// eliminarsub.js - Elimina sub-bots del grupo Y del servidor
+// eliminarsub.js - Elimina del grupo Y del servidor (sesión real)
+
+import { exec } from 'child_process'
+import { promisify } from 'util'
+import fs from 'fs/promises'
+import path from 'path'
+
+const execAsync = promisify(exec)
 
 let handler = async (m, { conn, text, usedPrefix, command, isOwner }) => {
-  if (!isOwner) return m.reply('❌ Solo el owner.')
+  if (!isOwner) return m.reply('❌ Solo owner.')
 
-  // Mostrar ayuda si no hay texto
   if (!text) {
     return m.reply(
-      `*🤖 ELIMINAR SUB-BOTS*\n\n` +
-      `🔹 *Listar todos:* ${usedPrefix}eliminarsub listar\n` +
-      `🔹 *Eliminar por @tag:* ${usedPrefix}eliminarsub @mencion\n` +
-      `🔹 *Eliminar por número:* ${usedPrefix}eliminarsub 519xxxxxxx\n` +
-      `🔹 *Eliminar todo:* ${usedPrefix}eliminarsub todos\n` +
-      `🔹 *Eliminar (sí):* ${usedPrefix}eliminarsub sí\n\n` +
-      `⚠️ *ADVERTENCIA:* También eliminará del servidor.`
+      `*🔥 ELIMINAR SUB-BOT COMPLETAMENTE*\n\n` +
+      `🔹 ${usedPrefix}eliminarsub @tag - Eliminar del grupo y servidor\n` +
+      `🔹 ${usedPrefix}eliminarsub listar - Ver miembros\n` +
+      `🔹 ${usedPrefix}eliminarsub todos - Eliminar todos\n\n` +
+      `⚠️ *ELIMINA:* Del grupo + Detiene proceso + Borra sesión`
     )
   }
 
-  // COMANDO: .eliminarsub sí
-  if (text.toLowerCase() === 'sí' || text.toLowerCase() === 'si') {
+  // Función para eliminar sesión del servidor
+  const eliminarDelServidor = async (numero) => {
     try {
-      // Obtener metadata del grupo
-      const groupMetadata = await conn.groupMetadata(m.chat)
-      const participants = groupMetadata.participants
+      const sessionPath = `./sessions/${numero}`
+      const sessionPath2 = `./MysticSession/${numero}`
+      const sessionPath3 = `./session/${numero}`
       
-      // Buscar el sub-bot más reciente (último que no sea el bot principal ni el owner)
-      let subBot = null
-      
-      // Primero buscar por patrones comunes de sub-bots
-      for (let participant of participants) {
-        if (participant.id === conn.user.id) continue // No es el bot principal
-        if (participant.id === m.sender) continue // No es el owner
-        
-        const nombre = participant.name || participant.notify || ''
-        const numero = participant.id.split('@')[0]
-        
-        // Patrones que indican que es un sub-bot
-        if (nombre.includes('Bot') || nombre.includes('Sub') || 
-            nombre.includes('Clone') || nombre.includes('Sock') ||
-            /^\d+$/.test(numero) || numero.startsWith('1') ||
-            nombre === '' || nombre === 'null' || nombre.length < 3) {
-          subBot = participant
-          break
-        }
-      }
-      
-      // Si no encontró por patrones, tomar el último miembro no-admin
-      if (!subBot) {
-        const posiblesSubs = participants.filter(p => 
-          p.id !== conn.user.id && 
-          p.id !== m.sender && 
-          !p.admin
-        )
-        
-        if (posiblesSubs.length > 0) {
-          subBot = posiblesSubs[posiblesSubs.length - 1] // Último de la lista
-        }
-      }
-
-      if (!subBot) {
-        return m.reply('❌ No se encontró ningún sub-bot para eliminar.\nUsa: .eliminarsub @tag')
-      }
-
-      const nombre = subBot.name || subBot.notify || 'Sub-bot'
-      const numero = subBot.id.split('@')[0]
-      const jid = subBot.id
-
-      // 1. ELIMINAR DEL GRUPO
-      await conn.groupParticipantsUpdate(m.chat, [jid], 'remove')
-      
-      // 2. ELIMINAR DEL SERVIDOR (Bloquear número)
+      // 1. DETENER PROCESO DEL SUB-BOT
       try {
-        await conn.updateBlockStatus(jid, 'block')
-      } catch (e) {
-        console.log('No se pudo bloquear, pero se eliminó del grupo')
+        // Para PM2
+        await execAsync(`pm2 stop ${numero} 2>/dev/null || true`)
+        await execAsync(`pm2 delete ${numero} 2>/dev/null || true`)
+        
+        // Para procesos node directos
+        await execAsync(`pkill -f "${numero}" 2>/dev/null || true`)
+        await execAsync(`kill $(lsof -t -i:${numero}) 2>/dev/null || true`)
+      } catch (e) {}
+
+      // 2. ELIMINAR ARCHIVOS DE SESIÓN
+      const carpetasSesion = [sessionPath, sessionPath2, sessionPath3]
+      
+      for (let carpeta of carpetasSesion) {
+        try {
+          await fs.access(carpeta)
+          await fs.rm(carpeta, { recursive: true, force: true })
+          console.log(`✅ Sesión eliminada: ${carpeta}`)
+        } catch (e) {}
       }
 
-      m.reply(`✅ *SUB-BOT ELIMINADO COMPLETAMENTE*\n\n` +
-              `📛 *Nombre:* ${nombre}\n` +
-              `📱 *Número:* ${numero}\n` +
-              `📍 Eliminado del grupo y bloqueado del servidor.`)
+      // 3. ELIMINAR DE BASE DE DATOS SI EXISTE
+      try {
+        const dbPath = './database.json'
+        if (await fs.access(dbPath).then(() => true).catch(() => false)) {
+          const db = JSON.parse(await fs.readFile(dbPath, 'utf8'))
+          if (db.users && db.users[`${numero}@s.whatsapp.net`]) {
+            delete db.users[`${numero}@s.whatsapp.net`]
+            await fs.writeFile(dbPath, JSON.stringify(db, null, 2))
+          }
+        }
+      } catch (e) {}
 
+      return true
     } catch (error) {
-      m.reply(`❌ Error: ${error.message}`)
+      console.error('Error eliminando del servidor:', error)
+      return false
     }
-    return
   }
 
-  // COMANDO: .eliminarsub listar
+  // COMANDO: listar
   if (text.toLowerCase() === 'listar') {
     try {
-      const groupMetadata = await conn.groupMetadata(m.chat)
-      const participants = groupMetadata.participants
+      const group = await conn.groupMetadata(m.chat)
+      const participantes = group.participants
       
-      let mensaje = `📋 *MIEMBROS DEL GRUPO:*\n\n`
-      let contador = 1
+      let mensaje = `📋 *MIEMBROS (${participantes.length})*\n\n`
+      let i = 1
       
-      participants.forEach(p => {
+      participantes.forEach(p => {
         const nombre = p.name || p.notify || 'Sin nombre'
         const numero = p.id.split('@')[0]
-        const esBotPrincipal = p.id === conn.user.id
+        const esBot = p.id === conn.user.id
         const esOwner = p.id === m.sender
         
-        mensaje += `${contador}. ${esBotPrincipal ? '🤖 ' : ''}${esOwner ? '👑 ' : ''}*${nombre}*\n`
+        mensaje += `${i}. ${esBot ? '🤖 ' : ''}${esOwner ? '👑 ' : ''}*${nombre}*\n`
         mensaje += `   📱 ${numero}\n`
-        if (!esBotPrincipal && !esOwner) {
-          mensaje += `   🔧 ${usedPrefix}eliminarsub ${numero}\n`
+        if (!esBot && !esOwner) {
+          mensaje += `   🔥 ${usedPrefix}eliminarsub ${numero}\n`
         }
-        mensaje += `   👤 ${p.admin ? 'Administrador' : 'Miembro'}\n\n`
-        contador++
+        mensaje += `   👤 ${p.admin ? 'Admin' : 'Miembro'}\n\n`
+        i++
       })
       
       m.reply(mensaje)
-    } catch (error) {
-      m.reply('❌ Error al listar miembros')
+    } catch (e) {
+      m.reply('❌ Error al listar')
     }
     return
   }
 
-  // COMANDO: .eliminarsub todos
+  // COMANDO: todos
   if (text.toLowerCase() === 'todos') {
     try {
-      const groupMetadata = await conn.groupMetadata(m.chat)
-      const participants = groupMetadata.participants
+      const group = await conn.groupMetadata(m.chat)
+      const participantes = group.participants
       
-      // Filtrar: solo eliminar posibles sub-bots (no owner, no bot principal, no admins)
-      const posiblesSubs = participants.filter(p => {
-        if (p.id === conn.user.id) return false // No es bot principal
-        if (p.id === m.sender) return false // No es owner
-        if (p.admin) return false // No eliminar admins
+      // Filtrar solo posibles sub-bots
+      const posiblesSubs = participantes.filter(p => {
+        if (p.id === conn.user.id) return false
+        if (p.id === m.sender) return false
         
+        const num = p.id.split('@')[0]
         const nombre = p.name || p.notify || ''
-        const numero = p.id.split('@')[0]
         
-        // Solo eliminar si parece ser sub-bot
-        return (nombre.includes('Bot') || nombre.includes('Sub') || 
-                nombre === '' || nombre === 'null' || /^\d+$/.test(numero))
+        // Detectar sub-bots por patrones
+        return (
+          nombre.includes('Bot') || 
+          nombre.includes('Sub') || 
+          nombre.includes('Clone') ||
+          /^\d+$/.test(nombre) ||
+          nombre.length < 3 ||
+          num.startsWith('1') ||
+          num.length > 12
+        )
       })
 
       if (posiblesSubs.length === 0) {
-        return m.reply('❌ No se encontraron sub-bots para eliminar.')
+        return m.reply('❌ No hay sub-bots detectados')
       }
 
-      let eliminados = 0
-      let errores = 0
-      
+      m.reply(`⚠️ *ELIMINAR ${posiblesSubs.length} SUB-BOTS*\n\n¿Continuar? Responde *"sí"*`)
+
+      // Esperar confirmación
+      const confirm = await conn.waitForMessage(
+        m.chat,
+        msg => msg.sender === m.sender && 
+               (msg.text?.toLowerCase() === 'sí' || msg.text?.toLowerCase() === 'si'),
+        { timeout: 15000 }
+      )
+
+      if (!confirm) return m.reply('❌ Cancelado')
+
+      let eliminadosGrupo = 0
+      let eliminadosServidor = 0
+      let resultados = []
+
       for (let sub of posiblesSubs) {
         try {
-          // Eliminar del grupo
+          const num = sub.id.split('@')[0]
+          const nombre = sub.name || sub.notify || num
+          
+          // 1. Eliminar del grupo
           await conn.groupParticipantsUpdate(m.chat, [sub.id], 'remove')
+          eliminadosGrupo++
           
-          // Bloquear del servidor
-          try {
-            await conn.updateBlockStatus(sub.id, 'block')
-          } catch (e) {}
+          // 2. Eliminar del servidor
+          const servidorEliminado = await eliminarDelServidor(num)
+          if (servidorEliminado) eliminadosServidor++
           
-          eliminados++
-          await new Promise(resolve => setTimeout(resolve, 1000)) // Esperar 1 segundo
+          resultados.push(`${servidorEliminado ? '✅' : '⚠️'} ${nombre}`)
           
-        } catch (error) {
-          errores++
+          // Esperar entre eliminaciones
+          await new Promise(r => setTimeout(r, 2000))
+          
+        } catch (e) {
+          resultados.push(`❌ Error`)
         }
       }
 
-      m.reply(`✅ *ELIMINACIÓN MASIVA COMPLETADA*\n\n` +
-              `✅ Eliminados: ${eliminados}\n` +
-              `❌ Errores: ${errores}\n` +
-              `🤖 Total procesados: ${posiblesSubs.length}`)
+      m.reply(
+        `🔥 *ELIMINACIÓN COMPLETADA*\n\n` +
+        `✅ Del grupo: ${eliminadosGrupo}\n` +
+        `✅ Del servidor: ${eliminadosServidor}\n` +
+        `🤖 Total: ${posiblesSubs.length}\n\n` +
+        `📋 Resultados:\n${resultados.slice(0, 10).join('\n')}` +
+        (resultados.length > 10 ? `\n... y ${resultados.length - 10} más` : '')
+      )
 
     } catch (error) {
       m.reply(`❌ Error: ${error.message}`)
@@ -173,66 +183,80 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner }) => {
     return
   }
 
-  // COMANDO: .eliminarsub @tag o .eliminarsub 519xxxxxxx
+  // COMANDO: eliminar por @tag o número
   try {
-    let jid = ''
+    let targetJid = ''
     
     if (m.quoted) {
-      jid = m.quoted.sender
+      targetJid = m.quoted.sender
     } else if (m.mentionedJid && m.mentionedJid.length > 0) {
-      jid = m.mentionedJid[0]
+      targetJid = m.mentionedJid[0]
     } else if (text.includes('@')) {
-      jid = text.includes('s.whatsapp.net') ? text : text + '@s.whatsapp.net'
+      targetJid = text.includes('s.whatsapp.net') ? text : text + '@s.whatsapp.net'
     } else {
-      const soloNumeros = text.replace(/\D/g, '')
-      if (soloNumeros.length >= 10) {
-        jid = soloNumeros + '@s.whatsapp.net'
+      const soloNum = text.replace(/\D/g, '')
+      if (soloNum.length >= 10) {
+        targetJid = soloNum + '@s.whatsapp.net'
       } else {
-        return m.reply('❌ Usa: @tag o número de teléfono')
+        return m.reply('❌ Usa: @tag o número')
       }
     }
 
-    // Verificaciones
-    if (jid === conn.user.id) return m.reply('❌ No puedo eliminarme a mí mismo')
-    if (jid === m.sender) return m.reply('❌ No puedes eliminarte a ti mismo')
+    // Verificar
+    if (targetJid === conn.user.id) return m.reply('❌ No soy un sub-bot')
+    if (targetJid === m.sender) return m.reply('❌ No puedes eliminarte')
 
-    const groupMetadata = await conn.groupMetadata(m.chat)
-    const participants = groupMetadata.participants
-    const usuario = participants.find(p => p.id === jid)
+    const group = await conn.groupMetadata(m.chat)
+    const participantes = group.participants
+    const usuario = participantes.find(p => p.id === targetJid)
     
-    if (!usuario) return m.reply('❌ Usuario no encontrado en el grupo')
+    if (!usuario) return m.reply('❌ No está en el grupo')
 
-    const nombre = usuario.name || usuario.notify || 'Usuario'
-    const numero = jid.split('@')[0]
+    const num = targetJid.split('@')[0]
+    const nombre = usuario.name || usuario.notify || num
+
+    // Preguntar confirmación
+    m.reply(
+      `⚠️ *¿ELIMINAR A ${nombre}?*\n\n` +
+      `Se eliminará:\n` +
+      `1. Del grupo actual\n` +
+      `2. Del servidor (sesión)\n\n` +
+      `Responde *"sí"* para confirmar`
+    )
+
+    const confirm = await conn.waitForMessage(
+      m.chat,
+      msg => msg.sender === m.sender && 
+             (msg.text?.toLowerCase() === 'sí' || msg.text?.toLowerCase() === 'si'),
+      { timeout: 15000 }
+    )
+
+    if (!confirm) return m.reply('❌ Cancelado')
 
     // 1. ELIMINAR DEL GRUPO
-    await conn.groupParticipantsUpdate(m.chat, [jid], 'remove')
+    await conn.groupParticipantsUpdate(m.chat, [targetJid], 'remove')
     
-    // 2. ELIMINAR DEL SERVIDOR (Bloquear)
-    try {
-      await conn.updateBlockStatus(jid, 'block')
-    } catch (e) {
-      console.log('No se pudo bloquear, pero se eliminó del grupo')
-    }
+    // 2. ELIMINAR DEL SERVIDOR
+    const servidorEliminado = await eliminarDelServidor(num)
 
-    m.reply(`✅ *ELIMINADO COMPLETAMENTE*\n\n` +
-            `📛 *Nombre:* ${nombre}\n` +
-            `📱 *Número:* ${numero}\n` +
-            `📍 Eliminado del grupo y bloqueado del servidor.`)
+    m.reply(
+      `🔥 *SUB-BOT ELIMINADO COMPLETAMENTE*\n\n` +
+      `📛 *Nombre:* ${nombre}\n` +
+      `📱 *Número:* ${num}\n` +
+      `✅ *Grupo:* Eliminado\n` +
+      `${servidorEliminado ? '✅' : '⚠️'} *Servidor:* ${servidorEliminado ? 'Sesión eliminada' : 'No se pudo eliminar sesión'}\n\n` +
+      `📍 El sub-bot ha dejado de funcionar.`
+    )
 
   } catch (error) {
-    let errorMsg = '❌ Error: '
-    if (error.message.includes('not authorized')) errorMsg += 'No eres admin'
-    else if (error.message.includes('403')) errorMsg += 'El bot no es admin'
-    else errorMsg += error.message
-    
-    m.reply(errorMsg)
+    m.reply(`❌ Error: ${error.message}`)
   }
 }
 
-handler.help = ['eliminarsub [@tag/sí/listar/todos]']
+// Configuración
+handler.help = ['eliminarsub @tag']
 handler.tags = ['owner']
-handler.command = /^(eliminarsub|quitarsub|kicksub)$/i
+handler.command = /^(eliminarsub|killbot|destruir)$/i
 handler.group = true
 handler.botAdmin = true
 handler.admin = true

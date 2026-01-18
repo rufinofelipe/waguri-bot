@@ -1,4 +1,5 @@
-﻿import { createHash } from 'crypto' 
+// By Duartexv
+import { createHash } from 'crypto' 
 import fetch from 'node-fetch'
 
 const handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isROwner }) => {
@@ -28,7 +29,6 @@ const handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, i
   let dbKey = typeMap[type] || type
   let isEnable = chat[dbKey] || bot[dbKey] || false
 
-
   const validFunctions = [
     'welcome', 'bienvenida',
     'antibot', 'antibots', 
@@ -55,7 +55,6 @@ const handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, i
     'audios', 'audiosmenu'
   ]
 
-
   const isValidFunction = (funcName) => {
     return validFunctions.includes(funcName.toLowerCase())
   }
@@ -64,165 +63,115 @@ const handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, i
     if (args[0]) {
       type = args[0].toLowerCase()
 
-
       if (!isValidFunction(type)) {
-        return conn.reply(m.chat, `❌ *Error:* La función "*${type}*" no existe.\n\n> Use *${usedPrefix}enable* sin parámetros para ver las funciones disponibles.`, m)
+        return m.reply(`❌ Error: La función "${type}" no existe.\n\nUsa *${usedPrefix}enable* sin parámetros para ver las funciones disponibles.`)
       }
-
       isEnable = true
     } else {
-      const funcionesDisponibles = [
-        '🎵 *⊱ ──── ≪ °❈° ≫ ──── ⊰* 🎵',
-        '💙 *𝐇𝐀𝐓𝐒𝐔𝐍𝐄 𝐌𝐈𝐊𝐔 - 𝐅𝐔𝐍𝐂𝐈𝐎𝐍𝐄𝐒* 💙',
-        '🎵 *⊱ ──── ≪ °❈° ≫ ──── ⊰* 🎵\n',
-        '🎤 *『 𝐆𝐑𝐔𝐏𝐎 』*\n',
-        '🌸 *welcome/bienvenida* ✨',
-        '  └─ Mensaje de bienvenida\n',
-        '🤖 *antibot/antibots* 🔧',
-        '  └─ Anti bots\n',
-        '✅ *autoaceptar* 👥',
-        '  └─ Auto aceptar usuarios\n',
-        '❌ *autorechazar* 🚫',
-        '  └─ Auto rechazar usuarios\n',
-        '💬 *autoresponder* 📝',
-        '  └─ Respuestas automáticas\n',
-        '🚫 *antisubbots/antibot2* 🤖',
-        '  └─ Anti sub-bots\n',
-        '👑 *modoadmin/soladmin* 👑',
-        '  └─ Solo administradores\n',
-        '😊 *reaction/reaccion* 💖',
-        '  └─ Reacciones automáticas\n',
-        '🔞 *nsfw/modohorny* 🔥',
-        '  └─ Contenido NSFW\n',
-        '👁️ *detect/avisos* 📢',
-        '  └─ Detectar cambios del grupo\n',
-        '🔗 *antilink* 🚫',
-        '  └─ Anti enlaces\n',
-        '🎭 *antifake* 👤',
-        '  └─ Anti números falsos\n',
-        '🕌 *antiarabes* 🇸🇦',
-        '  └─ Anti números árabes/spam\n',
-        '🚫 *antitoxic* 💢',
-        '  └─ Anti lenguaje tóxico/ofensivo\n',
-        '🚫 *antimencion/antimencionar* 📱',
-        '  └─ Anti estado/bio (elimina automáticamente)\n',
-        '⬆️ *autolevelup/autonivel* 📈',
-        '  └─ Subir nivel automático\n',
-        '🚫 *antispam* 📨',
-        '  └─ Anti spam\n',
-        '🔊 *audios* 🎵',
-        '  └─ Audios automáticos por palabras\n',
-        '🎤 *『 𝐁𝐎𝐓 𝐆𝐋𝐎𝐁𝐀𝐋 』*\n',
-        '🚫 *antiprivado/antiprivate* 📵',
-        '  └─ Anti chat privado\n',
-        '🔒 *restrict/restringir* ⚡',
-        '  └─ Modo restricción\n',
-        '🤖 *jadibotmd/modejadibot* 📱',
-        '  └─ Modo jadibot\n',
-        '🤖 *serbot* 📱',
-        '  └─ Función serbot (code/qr)\n',
-        '🤖 *subbots* 👥',
-        '  └─ Sub-bots\n',
-        '🎵 *⊱ ──── ≪ °❈° ≫ ──── ⊰* 🎵',
-        '',
-        `💙 *𝐔𝐒𝐎:* ${usedPrefix}enable [función]`,
-        `🌸 *𝐄𝐉𝐄𝐌𝐏𝐋𝐎:* ${usedPrefix}enable antilink`
-      ].join('\n')
+      const funcionesLista = `
+*📋 LISTA DE FUNCIONES*
 
-      return conn.reply(m.chat, funcionesDisponibles, m)
+*Grupo:*
+• welcome / bienvenida - Mensaje de bienvenida
+• antibot / antibots - Anti bots
+• autoaceptar - Auto aceptar usuarios
+• autorechazar - Auto rechazar usuarios
+• autoresponder - Respuestas automáticas
+• antisubbots / antibot2 - Anti sub-bots
+• modoadmin / soladmin - Solo administradores
+• reaction / reaccion - Reacciones automáticas
+• nsfw / modohorny - Contenido NSFW
+• detect / avisos - Detectar cambios del grupo
+• antilink / antilink2 - Anti enlaces
+• antifake - Anti números falsos
+• antiarabes / antiarab - Anti números árabes/spam
+• antitoxic / antitoxics - Anti lenguaje tóxico
+• antimencion / antimencionar - Anti estado/bio
+• autolevelup / autonivel - Subir nivel automático
+• antispam - Anti spam
+• audios / audiosmenu - Audios por palabras
+
+*Bot Global:*
+• antiprivado / antiprivate - Anti chat privado
+• restrict / restringir - Modo restricción
+• jadibotmd / modejadibot - Modo jadibot
+• serbot - Función serbot
+• subbots - Sub-bots
+
+*Uso:* ${usedPrefix}enable [función]
+*Ejemplo:* ${usedPrefix}enable antilink`
+      return m.reply(funcionesLista)
     }
   } else if (command === 'disable') {
     if (args[0]) {
       type = args[0].toLowerCase()
 
-
       if (!isValidFunction(type)) {
-        return conn.reply(m.chat, `❌ *Error:* La función "*${type}*" no existe.\n\n> Use *${usedPrefix}disable* sin parámetros para ver las funciones disponibles.`, m)
+        return m.reply(`❌ Error: La función "${type}" no existe.\n\nUsa *${usedPrefix}disable* sin parámetros para ver las funciones disponibles.`)
       }
-
       isEnable = false
     } else {
-      const funcionesDisponibles = [
-        '🎵 *⊱ ──── ≪ °❈° ≫ ──── ⊰* 🎵',
-        '💙 *𝐇𝐀𝐓𝐒𝐔𝐍𝐄 𝐌𝐈𝐊𝐔 - 𝐃𝐄𝐒𝐀𝐂𝐓𝐈𝐕𝐀𝐑 𝐅𝐔𝐍𝐂𝐈𝐎𝐍𝐄𝐒* 💙',
-        '🎵 *⊱ ──── ≪ °❈° ≫ ──── ⊰* 🎵\n',
-        '🎤 *『 𝐆𝐑𝐔𝐏𝐎 』*\n',
-        '🌸 *welcome/bienvenida* ✨',
-        '  └─ Mensaje de bienvenida\n',
-        '🤖 *antibot/antibots* 🔧',
-        '  └─ Anti bots\n',
-        '✅ *autoaceptar* 👥',
-        '  └─ Auto aceptar usuarios\n',
-        '❌ *autorechazar* 🚫',
-        '  └─ Auto rechazar usuarios\n',
-        '💬 *autoresponder* 📝',
-        '  └─ Respuestas automáticas\n',
-        '🚫 *antisubbots/antibot2* 🤖',
-        '  └─ Anti sub-bots\n',
-        '👑 *modoadmin/soladmin* 👑',
-        '  └─ Solo administradores\n',
-        '😊 *reaction/reaccion* 💖',
-        '  └─ Reacciones automáticas\n',
-        '🔞 *nsfw/modohorny* 🔥',
-        '  └─ Contenido NSFW\n',
-        '👁️ *detect/avisos* 📢',
-        '  └─ Detectar cambios del grupo\n',
-        '🔗 *antilink* 🚫',
-        '  └─ Anti enlaces\n',
-        '🎭 *antifake* 👤',
-        '  └─ Anti números falsos\n',
-        '🕌 *antiarabes* 🇸🇦',
-        '  └─ Anti números árabes/spam\n',
-        '🚫 *antitoxic* 💢',
-        '  └─ Anti lenguaje tóxico/ofensivo\n',
-        '🚫 *antimencion/antimencionar* 📱',
-        '  └─ Anti estado/bio (elimina automáticamente)\n',
-        '⬆️ *autolevelup/autonivel* 📈',
-        '  └─ Subir nivel automático\n',
-        '🚫 *antispam* 📨',
-        '  └─ Anti spam\n',
-        '🔊 *audios* 🎵',
-        '  └─ Audios automáticos por palabras\n',
-        '🎤 *『 𝐁𝐎𝐓 𝐆𝐋𝐎𝐁𝐀𝐋 』*\n',
-        '🚫 *antiprivado/antiprivate* 📵',
-        '  └─ Anti chat privado\n',
-        '🔒 *restrict/restringir* ⚡',
-        '  └─ Modo restricción\n',
-        '🤖 *jadibotmd/modejadibot* 📱',
-        '  └─ Modo jadibot\n',
-        '🤖 *serbot* 📱',
-        '  └─ Función serbot (code/qr)\n',
-        '🤖 *subbots* 👥',
-        '  └─ Sub-bots\n',
-        '🎵 *⊱ ──── ≪ °❈° ≫ ──── ⊰* 🎵',
-        '',
-        `💙 *𝐔𝐒𝐎:* ${usedPrefix}disable [función]`,
-        `🌸 *𝐄𝐉𝐄𝐌𝐏𝐋𝐎:* ${usedPrefix}disable antilink`
-      ].join('\n')
+      const funcionesLista = `
+*📋 LISTA DE FUNCIONES PARA DESACTIVAR*
 
-      return conn.reply(m.chat, funcionesDisponibles, m)
+*Grupo:*
+• welcome / bienvenida - Mensaje de bienvenida
+• antibot / antibots - Anti bots
+• autoaceptar - Auto aceptar usuarios
+• autorechazar - Auto rechazar usuarios
+• autoresponder - Respuestas automáticas
+• antisubbots / antibot2 - Anti sub-bots
+• modoadmin / soladmin - Solo administradores
+• reaction / reaccion - Reacciones automáticas
+• nsfw / modohorny - Contenido NSFW
+• detect / avisos - Detectar cambios del grupo
+• antilink / antilink2 - Anti enlaces
+• antifake - Anti números falsos
+• antiarabes / antiarab - Anti números árabes/spam
+• antitoxic / antitoxics - Anti lenguaje tóxico
+• antimencion / antimencionar - Anti estado/bio
+• autolevelup / autonivel - Subir nivel automático
+• antispam - Anti spam
+• audios / audiosmenu - Audios por palabras
+
+*Bot Global:*
+• antiprivado / antiprivate - Anti chat privado
+• restrict / restringir - Modo restricción
+• jadibotmd / modejadibot - Modo jadibot
+• serbot - Función serbot
+• subbots - Sub-bots
+
+*Uso:* ${usedPrefix}disable [función]
+*Ejemplo:* ${usedPrefix}disable antilink`
+      return m.reply(funcionesLista)
     }
   } else if (args[0] === 'on' || args[0] === 'enable') {
-
     if (!isValidFunction(type)) {
-      return conn.reply(m.chat, `❌ *Error:* La función "*${type}*" no existe.\n\n> Funciones disponibles: ${validFunctions.filter((f, i, arr) => arr.indexOf(f) === i).slice(0, 10).join(', ')}...`, m)
+      return m.reply(`❌ Error: La función "${type}" no existe.\n\nUsa *${usedPrefix}enable* para ver las funciones disponibles.`)
     }
-    isEnable = true;
+    isEnable = true
   } else if (args[0] === 'off' || args[0] === 'disable') {
-
     if (!isValidFunction(type)) {
-      return conn.reply(m.chat, `❌ *Error:* La función "*${type}*" no existe.\n\n> Funciones disponibles: ${validFunctions.filter((f, i, arr) => arr.indexOf(f) === i).slice(0, 10).join(', ')}...`, m)
+      return m.reply(`❌ Error: La función "${type}" no existe.\n\nUsa *${usedPrefix}enable* para ver las funciones disponibles.`)
     }
     isEnable = false
   } else {
-
     if (!isValidFunction(type)) {
-      return conn.reply(m.chat, `❌ *Error:* La función "*${type}*" no existe.\n\n> Use *${usedPrefix}enable* para ver las funciones disponibles.`, m)
+      return m.reply(`❌ Error: La función "${type}" no existe.\n\nUsa *${usedPrefix}enable* para ver las funciones disponibles.`)
     }
-    const estado = isEnable ? '✓ Activado' : '✗ Desactivado'
-    return conn.reply(m.chat, `💙 Un administrador puede activar o desactivar el *${command}* utilizando:\n\n> ✐ *${usedPrefix}${command} on* para activar.\n> ✐ *${usedPrefix}${command} off* para desactivar.\n> ✐ *${usedPrefix}enable ${command}* para activar.\n> ✐ *${usedPrefix}disable ${command}* para desactivar.\n\n✧ Estado actual » *${estado}*`, m, global.getRcanal?.() || global.rcanal)
+    const estado = isEnable ? '✅ Activado' : '❌ Desactivado'
+    return m.reply(`*Configuración de ${command}:*
+
+Estado actual: *${estado}*
+
+*Comandos disponibles:*
+• ${usedPrefix}${command} on - Activar
+• ${usedPrefix}${command} off - Desactivar
+• ${usedPrefix}enable ${command} - Activar
+• ${usedPrefix}disable ${command} - Desactivar`)
   }
 
+  // Permisos y configuraciones (sin cambios en la lógica)
   switch (type) {
     case 'welcome':
     case 'bienvenida':
@@ -236,8 +185,7 @@ const handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, i
         throw false
       }
       chat.welcome = isEnable
-      console.log(`🔧 Welcome ${isEnable ? 'activado' : 'desactivado'} para ${m.chat}. Nuevo valor:`, chat.welcome)
-      break  
+      break
 
     case 'antiprivado':
     case 'antiprivate':
@@ -257,11 +205,10 @@ const handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, i
           throw false
         }
       }
-
       chat.audios = isEnable
       break
 
-      case 'restrict':
+    case 'restrict':
     case 'restringir':
       isAll = true
       if (!isOwner) {
@@ -401,11 +348,9 @@ const handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, i
       chat.detect = isEnable
       break
 
-
     case 'antilink':
-
       if (!m.isGroup) {
-        return conn.reply(m.chat, '💙 Este comando debe usarse dentro del grupo que desea configurar. Use el comando en el grupo objetivo.', m)
+        return m.reply('Este comando debe usarse dentro del grupo que desea configurar.')
       }
       if (!(isAdmin || isOwner)) {
         global.dfail('admin', m, conn)
@@ -415,9 +360,8 @@ const handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, i
       break
 
     case 'antilink2':
-
       if (!m.isGroup) {
-        return conn.reply(m.chat, '💙 Este comando debe usarse dentro del grupo que desea configurar. Use el comando en el grupo objetivo.', m)
+        return m.reply('Este comando debe usarse dentro del grupo que desea configurar.')
       }
       if (!(isAdmin || isOwner)) {
         global.dfail('admin', m, conn)
@@ -500,45 +444,44 @@ const handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, i
       break
   }
 
-
-
+  // Configurar acción para antiMencion
   if ((dbKey === 'antiMencion' || type === 'antimencion') && args[1] && args[1].toLowerCase() === 'action') {
     const action = (args[2] || '').toLowerCase()
-    if (!m.isGroup) return conn.reply(m.chat, '❌ Este ajuste solo puede aplicarse en grupos.', m)
+    if (!m.isGroup) return m.reply('Este ajuste solo puede aplicarse en grupos.')
     if (!(isAdmin || isOwner)) {
       global.dfail('admin', m, conn)
       throw false
     }
     if (!['kick', 'delete'].includes(action)) {
-      return conn.reply(m.chat, '❌ Acción inválida. Use `kick` o `delete`.\n\nEjemplo: `enable antimencion action kick`', m)
+      return m.reply('❌ Acción inválida. Usa `kick` o `delete`.\n\nEjemplo: `enable antimencion action kick`')
     }
     chat.antiMencionAction = action
-    return conn.reply(m.chat, `✅ antiMencion action establecido a *${action}* para este chat.`, m)
+    return m.reply(`✅ Acción antiMencion establecida a: *${action}*`)
   }
-
 
   if (!isAll && dbKey === 'antiMencion' && isEnable && chat.antiMencionAction === undefined) {
     chat.antiMencionAction = 'kick'
   }
 
+  // Guardar configuración
   if (isAll) {
     bot[dbKey] = isEnable
   } else {
     chat[dbKey] = isEnable
   }
 
-
+  // Guardar en base de datos
   if (global.db && global.db.write) {
     await global.db.write().catch(console.error)
   }
 
-
-  const mensaje = `💙 La función *${type}* se *${isEnable ? 'activó' : 'desactivó'}* ${isAll ? 'para este Bot' : isUser ? '' : 'para este chat'}`;
+  // Respuesta final
+  const mensaje = `✅ *${type}* ${isEnable ? 'activado' : 'desactivado'} ${isAll ? 'para el bot' : 'para este chat'}`
   m.reply(mensaje)
-};
+}
 
 handler.help = ['welcome', 'bienvenida', 'antiprivado', 'antiprivate', 'restrict', 'restringir', 'autolevelup', 'autonivel', 'antibot', 'antibots', 'autoaceptar', 'aceptarauto', 'autorechazar', 'rechazarauto', 'autoresponder', 'autorespond', 'antisubbots', 'antibot2', 'modoadmin', 'soloadmin', 'reaction', 'reaccion', 'nsfw', 'modohorny', 'antispam', 'jadibotmd', 'modejadibot', 'serbot', 'subbots', 'detect', 'avisos', 'antilink', 'antilink2', 'antifake', 'antiarabes', 'antitoxic', 'antimencion', 'antimencionar', 'audios', 'enable', 'disable']
-handler.tags = ['nable'];
+handler.tags = ['nable']
 handler.command = ['welcome', 'bienvenida', 'antiprivado', 'antiprivate', 'restrict', 'restringir', 'autolevelup', 'autonivel', 'antibot', 'antibots', 'autoaceptar', 'aceptarauto', 'autorechazar', 'rechazarauto', 'autoresponder', 'autorespond', 'antisubbots', 'antibot2', 'modoadmin', 'soloadmin', 'reaction', 'reaccion', 'nsfw', 'modohorny', 'antispam', 'jadibotmd', 'modejadibot', 'serbot', 'subbots', 'detect', 'avisos', 'antilink', 'antilink2', 'antifake', 'antiarabes', 'antitoxic', 'antimencion', 'antimencionar', 'audios', 'enable', 'disable']
 
 export default handler

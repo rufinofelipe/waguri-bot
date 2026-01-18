@@ -1,3 +1,4 @@
+// By DuarteXV
 import db from '../lib/database.js'
 
 let handler = async (m, { args }) => {

@@ -1,22 +1,67 @@
-// eliminarsub.js - Comando para eliminar sub-bots (solo owner)
+// eliminarsub.js - Comando mejorado para detectar sub-bots
 
 let handler = async (m, { conn, text, usedPrefix, command, isOwner, participants }) => {
-  // Verificar si es el owner
   if (!isOwner) {
     return m.reply('❌ *ACCESO DENEGADO*\n\nSolo el owner del bot puede usar este comando.')
   }
 
-  // Mostrar ayuda si no hay argumentos
   if (!text) {
     const helpMessage = 
       `🤖 *GESTIÓN DE SUB-BOTS*\n\n` +
       `📌 *Uso:*\n` +
       `• ${usedPrefix}${command} listar - Ver lista de sub-bots\n` +
       `• ${usedPrefix}${command} todos - Eliminar TODOS los sub-bots\n` +
-      `• ${usedPrefix}${command} @tag/número - Confirmar eliminación de un sub-bot\n\n` +
+      `• ${usedPrefix}${command} @tag/número - Eliminar un sub-bot\n\n` +
       `💡 *Nota:* Para eliminar, debes confirmar enviando *"sí"* en un mensaje aparte.`
 
     return m.reply(helpMessage)
+  }
+
+  // Función mejorada para detectar sub-bots
+  const esSubBot = (participant) => {
+    if (participant.id === conn.user.id) return false // No es el bot principal
+    
+    const phone = participant.id.split('@')[0]
+    const name = (participant.name || participant.notify || '').toLowerCase()
+    
+    // Patrones más flexibles para detectar sub-bots
+    const patrones = [
+      // Patrones en el nombre
+      /bot/i,
+      /sub/i,
+      /clone/i,
+      /copy/i,
+      /spawn/i,
+      /sock/i,
+      /md/i,
+      /baileys/i,
+      /multi/i,
+      /device/i,
+      /session/i,
+      /terminal/i,
+      
+      // Patrones en el número (comunes en bots)
+      /^\d{10,}$/, // Números muy largos
+      /^1/, // Comienza con 1
+      /^0/, // Comienza con 0
+      /^\d+$/, // Solo números
+      
+      // Números específicos de país para bots
+      /^55/, // Brasil
+      /^91/, // India
+      /^62/, // Indonesia
+      /^1\d{10}$/, // EEUU/Canadá
+    ]
+    
+    // Verificar si el nombre o número coincide con algún patrón
+    const esBotPorNombre = patrones.some(patron => patron.test(name))
+    const esBotPorNumero = patrones.some(patron => patron.test(phone))
+    
+    // También verificar si tiene nombre muy genérico o vacío
+    const nombreGenerico = !name || name === '' || name === 'null' || name === 'undefined' || 
+                          name === 'user' || name === 'user' || name.length < 3
+    
+    return esBotPorNombre || esBotPorNumero || nombreGenerico
   }
 
   // Listar sub-bots
@@ -24,28 +69,29 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, participants
     try {
       const allParticipants = participants || (await conn.groupMetadata(m.chat)).participants
       
-      // Filtrar bots
-      const botPatterns = [
-        /^\d+@s\.whatsapp\.net$/,
-        /^bot/i,
-        /^subbot/i,
-        /-\s?bot$/i
-      ]
-
-      const subBots = allParticipants.filter(participant => {
-        if (participant.id === conn.user.id) return false
-        const phone = participant.id.split('@')[0]
-        const name = participant.name || participant.notify || ''
-        return botPatterns.some(pattern => 
-          pattern.test(phone) || pattern.test(name)
-        )
-      })
+      // Filtrar usando la función mejorada
+      const subBots = allParticipants.filter(esSubBot)
 
       if (subBots.length === 0) {
-        return m.reply('🤖 *NO HAY SUB-BOTS*\n\nNo se encontraron sub-bots en este grupo.')
+        // Mostrar TODOS los participantes para debug
+        let debugMessage = `🔍 *DEBUG - TODOS LOS PARTICIPANTES*\n\n`
+        debugMessage += `📊 Total: ${allParticipants.length}\n\n`
+        
+        allParticipants.forEach((participant, index) => {
+          if (participant.id === conn.user.id) return
+          const phone = participant.id.split('@')[0]
+          const name = participant.name || participant.notify || 'Sin nombre'
+          debugMessage += `${index + 1}. *${name}*\n`
+          debugMessage += `   📱 ${phone}\n`
+          debugMessage += `   👤 ${participant.admin ? '👑 Admin' : 'Miembro'}\n\n`
+        })
+        
+        debugMessage += `\n💡 *Si ves sub-bots aquí, ajusta los patrones en el código.*`
+        
+        return m.reply(debugMessage)
       }
 
-      let listMessage = `🤖 *LISTA DE SUB-BOTS*\n\n`
+      let listMessage = `🤖 *LISTA DE SUB-BOTS DETECTADOS*\n\n`
       listMessage += `📊 Total: ${subBots.length}\n\n`
 
       subBots.forEach((bot, index) => {
@@ -53,12 +99,13 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, participants
         const name = bot.name || bot.notify || 'Sin nombre'
         listMessage += `${index + 1}. *${name}*\n`
         listMessage += `   📱 ${phone}\n`
-        listMessage += `   🔧 Usa: ${usedPrefix}${command} ${phone}\n\n`
+        listMessage += `   👤 ${bot.admin ? '👑 Admin' : 'Miembro'}\n`
+        listMessage += `   🔧 Eliminar: ${usedPrefix}${command} ${phone}\n\n`
       })
 
       await m.reply(listMessage)
     } catch (error) {
-      await m.reply('❌ Error al listar sub-bots.')
+      await m.reply('❌ Error al listar: ' + error.message)
     }
     return
   }
@@ -67,49 +114,37 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, participants
   if (text.toLowerCase() === 'todos') {
     try {
       const allParticipants = participants || (await conn.groupMetadata(m.chat)).participants
-      
-      const botPatterns = [
-        /^\d+@s\.whatsapp\.net$/,
-        /^bot/i,
-        /^subbot/i,
-        /-\s?bot$/i
-      ]
-
-      const subBots = allParticipants.filter(participant => {
-        if (participant.id === conn.user.id) return false
-        const phone = participant.id.split('@')[0]
-        const name = participant.name || participant.notify || ''
-        return botPatterns.some(pattern => 
-          pattern.test(phone) || pattern.test(name)
-        )
-      })
+      const subBots = allParticipants.filter(esSubBot)
 
       if (subBots.length === 0) {
-        return m.reply('🤖 *NO HAY SUB-BOTS*\n\nNo se encontraron sub-bots para eliminar.')
+        return m.reply('🤖 *NO SE DETECTARON SUB-BOTS*\n\nUsa *.eliminarsub listar* para ver todos los participantes.')
       }
 
-      // Pedir confirmación por mensaje separado
-      await m.reply(
-        `⚠️ *CONFIRMAR ELIMINACIÓN*\n\n` +
-        `¿Estás seguro de eliminar *${subBots.length}* sub-bots?\n\n` +
-        `📌 Envía un mensaje con *"sí"* para confirmar.\n` +
-        `📌 Envía *"no"* o ignora para cancelar.\n\n` +
-        `⏰ Tienes 30 segundos para responder.`
-      )
+      // Mostrar qué se va a eliminar
+      let previewMessage = `⚠️ *SE ELIMINARÁN ${subBots.length} SUB-BOTS:*\n\n`
+      subBots.slice(0, 10).forEach((bot, index) => {
+        const phone = bot.id.split('@')[0]
+        const name = bot.name || bot.notify || 'Sin nombre'
+        previewMessage += `${index + 1}. ${name} (${phone})\n`
+      })
+      if (subBots.length > 10) previewMessage += `\n... y ${subBots.length - 10} más`
+      
+      previewMessage += `\n\n📌 *Envía "sí" para confirmar la eliminación.*`
 
-      // Esperar mensaje de confirmación
+      await m.reply(previewMessage)
+
+      // Esperar confirmación
       const confirm = await conn.waitForMessage(
         m.chat,
-        msg => msg.sender === m.sender && 
-               (msg.text?.toLowerCase() === 'sí' || msg.text?.toLowerCase() === 'no'),
+        msg => msg.sender === m.sender && msg.text?.toLowerCase() === 'sí',
         { timeout: 30000 }
       )
 
-      if (!confirm || confirm.text.toLowerCase() !== 'sí') {
-        return m.reply('❌ *OPERACIÓN CANCELADA*\n\nNo se confirmó la eliminación.')
+      if (!confirm) {
+        return m.reply('❌ *CANCELADO*\n\nNo se recibió confirmación.')
       }
 
-      // Eliminar sub-bots
+      // Eliminar
       let successCount = 0
       let failCount = 0
       
@@ -117,28 +152,27 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, participants
         try {
           await conn.groupParticipantsUpdate(m.chat, [bot.id], 'remove')
           successCount++
-          await new Promise(resolve => setTimeout(resolve, 1000))
+          await new Promise(resolve => setTimeout(resolve, 500)) // Pausa
         } catch (error) {
           failCount++
         }
       }
 
       await m.reply(
-        `📊 *RESUMEN DE ELIMINACIÓN*\n\n` +
-        `✅ Eliminados: ${successCount}\n` +
-        `❌ Fallados: ${failCount}\n` +
-        `🤖 Total procesados: ${subBots.length}`
+        `✅ *ELIMINACIÓN COMPLETADA*\n\n` +
+        `✅ Exitosos: ${successCount}\n` +
+        `❌ Fallidos: ${failCount}\n` +
+        `🤖 Total: ${subBots.length}`
       )
 
     } catch (error) {
-      await m.reply('❌ Error al eliminar sub-bots: ' + error.message)
+      await m.reply('❌ Error: ' + error.message)
     }
     return
   }
 
-  // Eliminar sub-bot específico
+  // Eliminar sub-bot específico (modo manual - sin detección automática)
   try {
-    // Obtener JID del objetivo
     let targetJid = ''
     
     if (text.includes('@')) {
@@ -152,102 +186,54 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, participants
       if (phoneNumber.length >= 10) {
         targetJid = `${phoneNumber}@s.whatsapp.net`
       } else {
-        return m.reply(
-          `❌ *FORMATO INVÁLIDO*\n\n` +
-          `Usa:\n• ${usedPrefix}${command} @mención\n` +
-          `• ${usedPrefix}${command} 521234567890\n` +
-          `• ${usedPrefix}${command} (responde a un mensaje)`
-        )
+        return m.reply(`❌ Formato inválido. Usa: ${usedPrefix}${command} @tag o número`)
       }
     }
 
-    // Verificar que no sea el bot principal
     if (targetJid === conn.user.id) {
       return m.reply('❌ No puedes eliminar el bot principal.')
     }
 
-    // Verificar que esté en el grupo
     const allParticipants = participants || (await conn.groupMetadata(m.chat)).participants
     const targetUser = allParticipants.find(p => p.id === targetJid)
 
     if (!targetUser) {
-      return m.reply('❌ El usuario no está en este grupo.')
+      return m.reply('❌ Usuario no encontrado en el grupo.')
     }
 
     const phone = targetJid.split('@')[0]
     const name = targetUser.name || targetUser.notify || 'Sin nombre'
 
-    // Pedir confirmación por mensaje separado
+    // Pedir confirmación
     await m.reply(
-      `⚠️ *CONFIRMAR ELIMINACIÓN*\n\n` +
-      `¿Eliminar a *${name}* (${phone}) como sub-bot?\n\n` +
-      `📌 Envía un mensaje con *"sí"* para confirmar.\n` +
-      `📌 Envía *"no"* o ignora para cancelar.\n\n` +
-      `⏰ Tienes 30 segundos para responder.`
+      `⚠️ *¿ELIMINAR A ESTE USUARIO?*\n\n` +
+      `📛 *Nombre:* ${name}\n` +
+      `📱 *Número:* ${phone}\n` +
+      `👤 *Rol:* ${targetUser.admin ? '👑 Admin' : 'Miembro'}\n\n` +
+      `📌 *Envía "sí" para confirmar la eliminación.*`
     )
 
-    // Esperar mensaje de confirmación
     const confirm = await conn.waitForMessage(
       m.chat,
-      msg => msg.sender === m.sender && 
-             (msg.text?.toLowerCase() === 'sí' || msg.text?.toLowerCase() === 'no'),
+      msg => msg.sender === m.sender && msg.text?.toLowerCase() === 'sí',
       { timeout: 30000 }
     )
 
-    if (!confirm || confirm.text.toLowerCase() !== 'sí') {
-      return m.reply('❌ *OPERACIÓN CANCELADA*\n\nNo se confirmó la eliminación.')
+    if (!confirm) {
+      return m.reply('❌ *CANCELADO*')
     }
 
-    // Eliminar el sub-bot
     await conn.groupParticipantsUpdate(m.chat, [targetJid], 'remove')
-
-    await m.reply(
-      `✅ *SUB-BOT ELIMINADO*\n\n` +
-      `🤖 *Nombre:* ${name}\n` +
-      `📱 *Número:* ${phone}\n` +
-      `📍 Eliminado del grupo exitosamente.`
-    )
+    
+    await m.reply(`✅ *ELIMINADO*\n\n${name} (${phone}) ha sido eliminado del grupo.`)
 
   } catch (error) {
-    let errorMessage = '❌ Error: '
-    if (error.message.includes('not authorized')) {
-      errorMessage += 'No tienes permisos de admin.'
-    } else if (error.message.includes('401')) {
-      errorMessage += 'Usuario no encontrado.'
-    } else {
-      errorMessage += error.message
-    }
-    await m.reply(errorMessage)
+    await m.reply('❌ Error: ' + error.message)
   }
 }
 
-// Función para esperar mensajes (si no existe)
-if (!conn.waitForMessage) {
-  conn.waitForMessage = (chatId, filter, options = {}) => {
-    return new Promise((resolve) => {
-      const timeout = options.timeout || 30000
-      const timeoutId = setTimeout(() => {
-        conn.ev.off('messages.upsert', listener)
-        resolve(null)
-      }, timeout)
-
-      const listener = async (m) => {
-        const message = m.messages?.[0]
-        if (!message) return
-        if (message.key?.remoteJid !== chatId) return
-        if (filter(message)) {
-          clearTimeout(timeoutId)
-          conn.ev.off('messages.upsert', listener)
-          resolve(message)
-        }
-      }
-
-      conn.ev.on('messages.upsert', listener)
-    })
-  }
-}
-
-handler.help = ['eliminarsub [listar/@tag/número/todos]']
+// Configuración del handler
+handler.help = ['eliminarsub [listar/todos/@tag]']
 handler.tags = ['owner', 'group']
 handler.command = /^(eliminarsub|removesub|kickbot|quitarsub)$/i
 handler.group = true

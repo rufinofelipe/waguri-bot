@@ -30,7 +30,6 @@ let handler = async (m, { conn }) => {
   let botsEnGrupo = 0
   let botsEnGrupoDetalles = []
 
-  // Obtener nombre principal (del bot que envía)
   const mainJid = mainBotConn.user?.jid || conn.user?.jid
   let mainName = readSessionName(mainJid) || mainBotConn.user?.name || 'Waguri Bot🌸'
 
@@ -38,7 +37,7 @@ let handler = async (m, { conn }) => {
     botsEnGrupo++
     botsEnGrupoDetalles.push({
       jid: mainBotConn.user.jid,
-      tipo: 'Principal'
+      tipo: '⍟'
     })
   }
 
@@ -47,23 +46,30 @@ let handler = async (m, { conn }) => {
       botsEnGrupo++
       botsEnGrupoDetalles.push({
         jid: subConn.user.jid,
-        tipo: 'Sub'
+        tipo: '⛧'
       })
     }
   }
 
-  let txt = `✿ Lista de bots activos (*${sesiones}* sesiones)\n\n❖ Principales » *${totalPrincipales}*\n✰ Subs » *${totalSubs}*\n\n`
-  txt += `❏ En este grupo: *${botsEnGrupo}*\n\n`
+  let txt = `◤━━━━━━━━━━━━━━━━━━━◥\n`
+  txt += `    ʙᴏᴛꜱ • ᴀᴄᴛɪᴠᴏꜱ\n`
+  txt += `◣━━━━━━━━━━━━━━━━━━━◤\n\n`
+  txt += `⟣ ᴛᴏᴛᴀʟ: ${sesiones}\n`
+  txt += `⟢ ᴘʀɪɴᴄɪᴘᴀʟ: ${totalPrincipales}\n`
+  txt += `⟣ ꜱᴜʙꜱ: ${totalSubs}\n\n`
+  txt += `◤━━━━━━━━━━━━━━━━━━━◥\n`
+  txt += `    ɢʀᴜᴘᴏ • ᴀᴄᴛᴜᴀʟ\n`
+  txt += `◣━━━━━━━━━━━━━━━━━━━◤\n\n`
+  txt += `⟢ ᴘʀᴇꜱᴇɴᴛᴇꜱ: ${botsEnGrupo}\n\n`
 
   if (botsEnGrupo > 0) {
     for (let b of botsEnGrupoDetalles) {
       const numero = b.jid.split('@')[0]
-      // Obtener nombre de la sesión específica; si no existe, mostrar el nombre principal
       const nombreSesion = readSessionName(b.jid) || mainName
-      txt += `\t\t*✎ [${b.tipo} • ${nombreSesion}]* » @${numero}\n`
+      txt += `${b.tipo}  ‎ @${numero}\n`
     }
   } else {
-    txt += '\t\t🜸 Ningún bot principal/sub en este grupo\n'
+    txt += `⟣ ɴɪɴɢᴜɴ ʙᴏᴛ ᴀᴄᴛɪᴠᴏ\n`
   }
 
   const mentions = botsEnGrupoDetalles.map(b => b.jid)

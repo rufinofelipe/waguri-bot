@@ -35,45 +35,32 @@ let handler = async (m, { conn }) => {
 
   if (mainBotConn.chats && mainBotConn.chats[m.chat]) {
     botsEnGrupo++
-    botsEnGrupoDetalles.push({
-      jid: mainBotConn.user.jid,
-      tipo: '⍟'
-    })
+    botsEnGrupoDetalles.push({ jid: mainBotConn.user.jid, tipo: '⍟' })
   }
 
   for (let subConn of global.conns) {
     if (subConn.chats && subConn.chats[m.chat]) {
       botsEnGrupo++
-      botsEnGrupoDetalles.push({
-        jid: subConn.user.jid,
-        tipo: '⛧'
-      })
+      botsEnGrupoDetalles.push({ jid: subConn.user.jid, tipo: '⛧' })
     }
   }
 
-  let txt = `◤━━━━━━━━━━━━━━━━━━━◥\n`
-  txt += `    ʙᴏᴛꜱ • ᴀᴄᴛɪᴠᴏꜱ\n`
-  txt += `◣━━━━━━━━━━━━━━━━━━━◤\n\n`
+  let txt = `◤━━━━━━━━━━━━━━━━━━━◥\nʙᴏᴛꜱ • ᴀᴄᴛɪᴠᴏꜱ\n◣━━━━━━━━━━━━━━━━━━━◤\n\n`
   txt += `⟣ ᴛᴏᴛᴀʟ: ${sesiones}\n`
   txt += `⟢ ᴘʀɪɴᴄɪᴘᴀʟ: ${totalPrincipales}\n`
   txt += `⟣ ꜱᴜʙꜱ: ${totalSubs}\n\n`
-  txt += `◤━━━━━━━━━━━━━━━━━━━◥\n`
-  txt += `    ɢʀᴜᴘᴏ • ᴀᴄᴛᴜᴀʟ\n`
-  txt += `◣━━━━━━━━━━━━━━━━━━━◤\n\n`
+  txt += `◤━━━━━━━━━━━━━━━━━━━◥\nɢʀᴜᴘᴏ • ᴀᴄᴛᴜᴀʟ\n◣━━━━━━━━━━━━━━━━━━━◤\n\n`
   txt += `⟢ ᴘʀᴇꜱᴇɴᴛᴇꜱ: ${botsEnGrupo}\n\n`
 
   if (botsEnGrupo > 0) {
     for (let b of botsEnGrupoDetalles) {
-      const numero = b.jid.split('@')[0]
-      const nombreSesion = readSessionName(b.jid) || mainName
-      txt += `${b.tipo}  ‎ @${numero}\n`
+      txt += `${b.tipo} @${b.jid.split('@')[0]}\n`
     }
   } else {
     txt += `⟣ ɴɪɴɢᴜɴ ʙᴏᴛ ᴀᴄᴛɪᴠᴏ\n`
   }
 
   const mentions = botsEnGrupoDetalles.map(b => b.jid)
-
   await conn.sendMessage(m.chat, { text: txt, mentions }, { quoted: m })
 }
 

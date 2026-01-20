@@ -5,107 +5,44 @@ import path from 'path'
 
 var handler = async (m, { conn, usedPrefix }) => {
 
-  // Verificar si es el bot principal
-  if (global.conn.user.jid !== conn.user.jid) {
-    return conn.reply(m.chat, `⚠️ *ACCESO DENEGADO*\n\nUtiliza este comando directamente en el número principal del Bot.`, m)
-  }
-  
-  // Variables emoji (debes definirlas en tu código global)
-  const rwait = '⌛' // o el emoji que uses
-  const done = '✅' // o el emoji que uses
-  const sessions = 'sessions' // carpeta de sesiones
-  
-  await conn.reply(m.chat, `🔄 *LIMPIANDO SESIONES...*\nPor favor espera...`, m)
-  m.react(rwait)
+if (global.conn.user.jid !== conn.user.jid) {
+return conn.reply(m.chat, `${emoji} Utiliza este comando directamente en el número principal del Bot.`, m)
+}
+await conn.reply(m.chat, `${emoji2} Iniciando proceso de eliminación de todos los archivos de sesión, excepto el archivo creds.json...`, m)
+m.react(rwait)
 
-  let sessionPath = `./${sessions}/`
+let sessionPath = `./${sessions}/`
 
-  try {
-    // Verificar si la carpeta existe
-    if (!existsSync(sessionPath)) {
-      return await conn.reply(m.chat, `📁 *CARPETA NO ENCONTRADA*\n\nLa carpeta '${sessions}' no existe.`, m)
-    }
-    
-    // Leer archivos de la carpeta
-    let files = await fs.readdir(sessionPath)
-    
-    // Filtrar para mantener creds.json
-    const filesToDelete = files.filter(file => file !== 'creds.json')
-    
-    if (filesToDelete.length === 0) {
-      return await conn.reply(m.chat, `📂 *CARPETA VACÍA*\n\nNo hay archivos para eliminar (excepto creds.json).`, m)
-    }
-    
-    let filesDeleted = 0
-    let errors = []
-    
-    // Eliminar archivos uno por uno
-    for (const file of filesToDelete) {
-      try {
-        const filePath = path.join(sessionPath, file)
-        const stat = await fs.stat(filePath)
-        
-        if (stat.isDirectory()) {
-          // Si es carpeta, eliminarla recursivamente
-          await fs.rm(filePath, { recursive: true, force: true })
-        } else {
-          // Si es archivo, eliminarlo
-          await fs.unlink(filePath)
-        }
-        filesDeleted++
-        
-      } catch (fileError) {
-        errors.push(`${file}: ${fileError.message}`)
-      }
-    }
-    
-    // Enviar resultados
-    m.react(done)
-    
-    let resultMessage = `🗑️ *LIMPIEZA COMPLETADA*\n\n`
-    resultMessage += `📊 *RESULTADOS:*\n`
-    resultMessage += `✅ Archivos eliminados: ${filesDeleted}\n`
-    resultMessage += `📁 Total archivos: ${files.length}\n`
-    resultMessage += `🔐 Creds.json: Preservado\n\n`
-    
-    if (errors.length > 0) {
-      resultMessage += `⚠️ *ERRORES:*\n`
-      resultMessage += errors.slice(0, 5).join('\n')
-      if (errors.length > 5) {
-        resultMessage += `\n... y ${errors.length - 5} errores más`
-      }
-    } else {
-      resultMessage += `✨ Todos los archivos se eliminaron correctamente.`
-    }
-    
-    await conn.reply(m.chat, resultMessage, m)
-    
-    // Opcional: mensaje divertido
-    if (filesDeleted > 0) {
-      setTimeout(() => {
-        conn.reply(m.chat, `😏 *NOTA:*\nSi me ves eliminando sesiones... ¡eres bien curioso!`, m)
-      }, 1000)
-    }
+try {
 
-  } catch (err) {
-    console.error('❌ Error al limpiar sesiones:', err)
-    
-    let errorMessage = `❌ *ERROR CRÍTICO*\n\n`
-    errorMessage += `No se pudo completar la limpieza:\n`
-    errorMessage += `\`\`\`${err.message}\`\`\`\n\n`
-    errorMessage += `📍 Ruta intentada: ${sessionPath}\n`
-    errorMessage += `🔧 Verifica permisos y que la carpeta exista.`
-    
-    await conn.reply(m.chat, errorMessage, m)
-  }
+if (!existsSync(sessionPath)) {
+return await conn.reply(m.chat, `${emoji} La carpeta está vacía.`, m)
+}
+let files = await fs.readdir(sessionPath)
+let filesDeleted = 0
+for (const file of files) {
+if (file !== 'creds.json') {
+await fs.unlink(path.join(sessionPath, file))
+filesDeleted++;
+}
+}
+if (filesDeleted === 0) {
+await conn.reply(m.chat, `${emoji2} La carpeta esta vacía.`, m)
+} else {
+m.react(done)
+await conn.reply(m.chat, `${emoji} Se eliminaron ${filesDeleted} archivos de sesión, excepto el archivo creds.json.`, m)
+conn.reply(m.chat, `${emoji} *¡Hola! ¿logras verme?*`, m)
 
 }
+} catch (err) {
+console.error('Error al leer la carpeta o los archivos de sesión:', err);
+await conn.reply(m.chat, `${msm} Ocurrió un fallo.`, m)
+}
 
-handler.help = ['delai', 'dsowner', 'clearallsession', 'limpiarsesiones']
+}
+handler.help = ['dsowner']
 handler.tags = ['owner']
-handler.command = /^(delai|dsowner|clearallsession|limpiarsesiones|clearsession)$/i
-handler.rowner = true
-handler.botAdmin = false
-handler.group = false
+handler.command = ['delai', 'dsowner', 'clearallsession']
+handler.rowner = true;
 
 export default handler

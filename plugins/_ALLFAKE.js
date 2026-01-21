@@ -6,29 +6,29 @@ import moment from 'moment-timezone'
 const { generateWAMessageFromContent, prepareWAMessageMedia, proto } = pkg
 
 // Variables globales
-global.creador = 'wa.me/573244642273'
-global.namechannel = '⏤͟͞ू⃪𝐁𝕃𝐔𝔼 𝐋𝕆𝐂𝕂 𝐂𝕃𝐔𝔹 𑁯🩵ᰍ'
-global.namechannel2 = '𝕭𝖑𝖚𝖊 𝖑𝖔𝖈𝖐 𝕮𝖑𝖚𝖇'
-global.namegrupo = '𝕭𝖑𝖚𝖊 𝖑𝖔𝖈𝖐 𝕮𝖑𝖚𝖇'
-global.namecomu = '⏤͟͞ू⃪𝐁𝕃𝐔𝔼 𝐋𝕆𝐂𝕂 𝐂𝕃𝐔𝔹 𑁯🩵ᰍ'
+global.creador = 'wa.me/240222646582'
+global.namechannel = '🌸❖𝗪𝗔𝗚𝗨𝗥𝗜 𝗕𝗢𝗧❖🌸'
+global.namechannel2 = '🌸❖𝗪𝗔𝗚𝗨𝗥𝗜 𝗕𝗢𝗧❖🌸'
+global.namegrupo = '🌸𝗪𝗔𝗚𝗨𝗥𝗜 𝗕𝗢𝗧❖🌸'
+global.namecomu = '🌸 WAGURI BOT COMMUNITY 🌸'
 global.listo = '*Aquí tienes ฅ^•ﻌ•^ฅ*'
 global.canalIdM = ["120363420979328566@newsletter", "120363420979328566@newsletter"]
-global.canalNombreM = ["⏤͟͞ू⃪𝐁𝕃𝐔𝔼 𝐋𝕆𝐂𝕂 𝐂𝕃𝐔𝔹 𑁯🩵ᰍ"]
+global.canalNombreM = ["🌸❖𝗪𝗔𝗚𝗨𝗥𝗜 𝗕𝗢𝗧❖🌸"]
 global.iconCache = global.iconCache || new Map()
 global.defaultIcon = 'https://cdn.hostrta.win/fl/tkze.jpg'
 global.rwait = '🕒'
 global.done = '✅'
 global.error = '✖️'
 global.msm = '⚠︎'
-global.emoji = '⚽️'
-global.emoji2 = '🔥'
-global.emoji3 = '💎'
-global.emoji4 = '🏆'
-global.emoji5 = '⚽️'
-global.wait = '⚽️ Espera un momento, soy lento...'
-global.waitt = '⚽️ Espera un momento, soy lento...'
-global.waittt = '⚽️ Espera un momento, soy lento...'
-global.waitttt = '⚽️ Espera un momento, soy lento...'
+global.emoji = '🌸'
+global.emoji2 = '🌸'
+global.emoji3 = '🌸'
+global.emoji4 = '🌸'
+global.emoji5 = '🌸'
+global.wait = '🌸 Espera un momento, soy lento...'
+global.waitt = '🌸 Espera un momento, soy lento...'
+global.waittt = '🌸 Espera un momento, soy lento...'
+global.waitttt = '🌸 Espera un momento, soy lento...'
 
 // Funciones globales
 global.getBuffer = async function getBuffer(url, options) {
@@ -310,8 +310,8 @@ handler.all = async function(m) {
     global.packsticker2 = ` 🏆━━━✦✧✦━━━🏆 ${global.creador} `
     
     // Redes
-    var canal = 'https://whatsapp.com/channel/0029Vb73g1r1NCrTbefbFQ2T'
-    var comunidad = 'https://chat.whatsapp.com/GPfABUmCuVN2Qu1d1PPcBY'
+    var canal = 'https://whatsapp.com/channel/0029VbBUHyQCsU9IpJ0oIO2i'
+    var comunidad = 'https://chat.whatsapp.com/LRQrf8vv50BDtwN8JWfhrX'
     var git = 'https://github.com/Brauliovh3'
     var github = 'https://github.com/Brauliovh3/HATSUNE-MIKU'
     let correo = 'duartexv.ofc@gmail.com'

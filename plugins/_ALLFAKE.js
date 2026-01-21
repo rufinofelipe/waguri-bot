@@ -320,10 +320,10 @@ handler.all = async function(m) {
     // Foto de perfil
     try {
         if (m.conn) {
-            global.fotoperfil = await m.conn.profilePictureUrl(m.sender, 'image').catch(_ => 'https://raw.githubusercontent.com/ANDERSONARRUE/Img.2/main/upload_1767498774165.jpg')
+            global.fotoperfil = await m.conn.profilePictureUrl(m.sender, 'image').catch(_ => 'https://cdn.hostrta.win/fl/9zsk.jpg')
         }
     } catch (error) {
-        global.fotoperfil = 'https://raw.githubusercontent.com/ANDERSONARRUE/Img.2/main/upload_1767498774165.jpg'
+        global.fotoperfil = 'https://cdn.hostrta.win/fl/9zsk.jpg'
     }
     
     global.channelRD = await getRandomChannel()
@@ -357,7 +357,7 @@ handler.all = async function(m) {
         }
     }
     
-    global.icono = ['https://cdn.hostrta.win/fl/kv3w.jpg'].getRandom ? ['https://cdn.hostrta.win/fl/kv3w.jpg'].getRandom() : pickRandom(['https://cdn.hostrta.win/fl/kv3w.jpg'])
+    global.icono = ['https://cdn.hostrta.win/fl/9zsk.jpg'].getRandom ? ['https://cdn.hostrta.win/fl/9zsk.jpg'].getRandom() : pickRandom(['https://cdn.hostrta.win/fl/9zsk.jpg'])
     
     global.rcanal = {
         contextInfo: {

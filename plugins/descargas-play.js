@@ -80,7 +80,7 @@ const handler = async (m, { conn, text, command }) => {
       }
     } else if (['play2', 'ytv', 'ytmp4'].includes(command)) {
       try {
-        const videoAPI = `https://rest.alyabotpe.xyz/dl/ytmp4?url=${encodeURIComponent(url)}&quality=144&key=${API_KEY}`
+        const videoAPI = `https://api-causas.duckdns.org/api/v1/descargas/youtube?url=https://www.youtube.com/watch?v=kJQP7kiw5Fk&type=video&apikey=causa-dde39cb190dfc7d4`
         const res = await fetch(videoAPI)
         const json = await res.json()
 

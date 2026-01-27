@@ -6,7 +6,7 @@
 // ============================================
 import fetch from 'node-fetch';
 
-const API_KEY = 'stellar-dXXUtmL2';
+const API_KEY = 'stellar-SSfb2OPw';
 const API_URL = 'https://rest.alyabotpe.xyz/tools/lyrics';
 
 async function handler(m, { text, conn }) {

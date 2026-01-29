@@ -1,69 +1,44 @@
-// By Rufino - Comando para robar dinero
-let cooldownRobo = {}
+// By DuarteXV
+const ro = 30;
+const handler = async (m, {conn, usedPrefix, command}) => {
+  const time = global.db.data.users[m.sender].lastrob2 + 7200000;
+  if (new Date - global.db.data.users[m.sender].lastrob2 < 7200000) {
+  conn.reply(m.chat, `${emoji3} Debes esperar ${msToTime(time - new Date())} para usar #rob de nuevo.`, m);
+  return;
+  }
+  let who;
+  if (m.isGroup) who = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : false;
+  else who = m.chat;
+  if (!who) {
+  conn.reply(m.chat, `${emoji} Debes mencionar a alguien para intentar robarle.`, m)
+  return;
+    };
+  if (!(who in global.db.data.users)) { 
+  conn.reply(m.chat, `${emoji2} El usuario no se encuentra en mi base de datos.`, m)
+return;
+  }
+  const users = global.db.data.users[who];
+  const rob = Math.floor(Math.random() * ro);
+  if (users.coin < rob) return conn.reply(m.chat, `${emoji2} @${who.split`@`[0]} no tiene suficientes *${moneda}* fuera del banco como para que valga la pena intentar robar.`, m, {mentions: [who]});
+  global.db.data.users[m.sender].coin += rob;
+  global.db.data.users[who].coin -= rob;
+  conn.reply(m.chat, `${emoji} Le robaste ${rob} ${moneda} a @${who.split`@`[0]}`, m, {mentions: [who]});
+  global.db.data.users[m.sender].lastrob2 = new Date * 1;
+};
+handler.help = ['rob'];
+handler.tags = ['rpg'];
+handler.command = ['robar', 'steal', 'rob'];
+handler.group = true;
+handler.register = true;
 
-let handler = async (m, { conn, usedPrefix }) => {
-    let user = global.db.data.users[m.sender]
-    let userId = m.sender
-    
-    // Cooldown de 30 minutos
-    if (cooldownRobo[userId] && Date.now() - cooldownRobo[userId] < 30 * 60 * 1000) {
-        let tiempo = Math.ceil((cooldownRobo[userId] + 30 * 60 * 1000 - Date.now()) / 1000)
-        let minutos = Math.floor(tiempo / 60)
-        let segundos = tiempo % 60
-        return m.reply(`⏳ Puedes volver a robar en ${minutos}m ${segundos}s`)
-    }
-    
-    // Verificar si hay usuario mencionado
-    if (!m.mentionedJid || m.mentionedJid.length === 0) {
-        return m.reply(`📍 Usa: ${usedPrefix}rob @usuario`)
-    }
-    
-    let victima = m.mentionedJid[0]
-    
-    // Validaciones básicas
-    if (victima === userId) return
-    if (victima === conn.user.jid) return
-    if (!(victima in global.db.data.users)) return
-    
-    let usuarioVictima = global.db.data.users[victima]
-    let nombreRobador = conn.getName(userId)
-    let nombreVictima = conn.getName(victima)
-    
-    // Verificar que tenga al menos 300 monedas
-    if (!usuarioVictima.coin || usuarioVictima.coin < 300) {
-        return m.reply(`❌ ${nombreVictima} no tiene suficiente dinero para robar`)
-    }
-    
-    // Aplicar cooldown
-    cooldownRobo[userId] = Date.now()
-    
-    // Calcular monto a robar (20-50% del efectivo)
-    let porcentaje = 20 + Math.floor(Math.random() * 31) // 20-50%
-    let montoRobo = Math.floor(usuarioVictima.coin * (porcentaje / 100))
-    montoRobo = Math.max(1, montoRobo)
-    
-    // Probabilidad de éxito 50%
-    let exito = Math.random() < 0.5
-    
-    if (exito) {
-        // Robo exitoso
-        let montoFinal = Math.min(montoRobo, usuarioVictima.coin)
-        
-        user.coin += montoFinal
-        usuarioVictima.coin -= montoFinal
-        
-        await m.reply(`✅ Le robaste *${montoFinal} ${moneda}* a ${nombreVictima}`)
-        
-    } else {
-        // Robo fallido
-        await m.reply(`❌ Fallaste al robar a ${nombreVictima}`)
-    }
+export default handler;
+function msToTime(duration) {
+  const milliseconds = parseInt((duration % 1000) / 100);
+  let seconds = Math.floor((duration / 1000) % 60);
+  let minutes = Math.floor((duration / (1000 * 60)) % 60);
+  let hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+  hours = (hours < 10) ? '0' + hours : hours;
+  minutes = (minutes < 10) ? '0' + minutes : minutes;
+  seconds = (seconds < 10) ? '0' + seconds : seconds;
+  return hours + ' Hora(s) ' + minutes + ' Minuto(s)';
 }
-
-handler.help = ['rob']
-handler.tags = ['rpg']
-handler.command = ['rob', 'robar']
-handler.group = true
-handler.register = true
-
-export default handler

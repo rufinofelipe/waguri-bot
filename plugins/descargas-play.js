@@ -3,7 +3,7 @@ import path from "path"
 import fetch from "node-fetch"
 import yts from 'yt-search'
 
-const API_KEY = 'stellar-SSfb2OPw'
+const API_KEY = 'stellar-dXXUtmL2'
 const youtubeRegexID = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/
 
 const handler = async (m, { conn, text, command }) => {

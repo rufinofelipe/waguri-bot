@@ -288,8 +288,26 @@ let handler = async (m, { conn }) => {
  ┏━━━━━━━━━━━━━━━━━━┓
      💰 𝗘𝗖𝗢𝗡𝗢𝗠𝗜́𝗔
  ┗━━━━━━━━━━━━━━━━━━┛
- ❀ 
-> estos comandos están en mantenimiento estamos trabajando en un nuevo sistema de economía 
+ ❀ /trabajar
+ > realiza diversos trabajos para ganar dinero 
+
+ ❀ /balance
+ > consulta tu dinero en efectivo y banco
+
+ ❀ /pay @usuario <cantidad>
+ > transfiere ${moneda} desde tu banco a otro usuario
+
+ ❀ /minar
+ > mina criptomonedas con sistema de probabilidades
+
+ ❀ /rob @usuario
+ > intenta robar ${moneda} de otro jugador (riesgoso)
+
+ ❀ /deposit <cantidad>
+ > deposita tu dinero en el banco para protegerlo
+
+ ❀ /withdraw <cantidad>
+ > retira dinero de tu banco al efectivo
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

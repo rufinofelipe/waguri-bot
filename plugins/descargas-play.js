@@ -1,120 +1,160 @@
 import fs from "fs"
 import path from "path"
 import fetch from "node-fetch"
-import yts from 'yt-search'
+import yts from "yt-search"
+import { exec } from "child_process"
 
-const API_KEY = 'stellar-dXXUtmL2'
+const API_KEY = "causa-b0ec2c842e895e70"
 const youtubeRegexID = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/
+const COST = 10
 
 const handler = async (m, { conn, text, command }) => {
   try {
-    if (!text.trim()) return conn.reply(m.chat, `🌸 Por favor, ingresa el nombre de la música a descargar.`, m)
+    if (!text.trim()) {
+      return conn.reply(m.chat, "⚽ Ingresa el nombre o enlace del video.", m)
+    }
+
+    const user = global.db.data.users[m.sender]
+
+    if ((user.coin || 0) < COST) {
+      const faltante = COST - (user.coin || 0)
+      return conn.reply(
+        m.chat,
+        `⚽ No tienes suficientes monedas.\n\n💎 Necesitas: *${COST}*\n💎 Tienes: *${user.coin || 0}*\n💎 Te faltan: *${faltante}*`,
+        m
+      )
+    }
 
     let videoIdToFind = text.match(youtubeRegexID)
-    let ytSearch = await yts(videoIdToFind ? 'https://youtu.be/' + videoIdToFind[1] : text)
+    let ytSearch = await yts(videoIdToFind ? "https://youtu.be/" + videoIdToFind[1] : text)
 
     if (videoIdToFind) {
-      const videoId = videoIdToFind[1]
-      ytSearch = ytSearch.all.find(item => item.videoId === videoId) || ytSearch.videos.find(item => item.videoId === videoId)
+      ytSearch =
+        ytSearch.all.find(v => v.videoId === videoIdToFind[1]) ||
+        ytSearch.videos.find(v => v.videoId === videoIdToFind[1])
     }
 
     ytSearch = ytSearch.all?.[0] || ytSearch.videos?.[0] || ytSearch
-    if (!ytSearch || ytSearch.length === 0) return m.reply('✧ No se encontraron resultados para tu búsqueda.')
+    if (!ytSearch) return conn.reply(m.chat, "✧ No se encontraron resultados.", m)
 
-    let { title, thumbnail, timestamp, views, ago, url, author } = ytSearch
+    const { title, thumbnail, timestamp, views, ago, url } = ytSearch
     const vistas = formatViews(views)
-    const canalLink = author?.url || 'Desconocido'
-
-    const infoMessage = `
-🌸 𝗬𝗼𝘂𝗧𝘂𝗯𝗲 𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱 | 𝗪𝗮𝗴𝘂𝗿𝗶
-
-━━━━━━━━━━━━━━━━━━━━━━━
-
-⚡ 𝗧𝗶𝘁𝘂𝗹𝗼: *${title || 'Desconocido'}*
-👁️ 𝗩𝗶𝘀𝘁𝗮𝘀: *${vistas}*
-⏱️ 𝗗𝘂𝗿𝗮𝗰𝗶𝗼𝗻: *${timestamp}*
-📅 𝗣𝘂𝗯𝗹𝗶𝗰𝗮𝗱𝗼: *${ago}*
-🔗 𝗘𝗻𝗹𝗮𝗰𝗲: ${url}
-📺 𝗖𝗮𝗻𝗮𝗹: ${canalLink}
-
-━━━━━━━━━━━━━━━━━━━━━━━
-🌸 𝗣𝗿𝗲𝗽𝗮𝗿𝗮𝗻𝗱𝗼 𝘁𝘂 𝗮𝗿𝗰𝗵𝗶𝘃𝗼...
-`
-
     const thumb = (await conn.getFile(thumbnail))?.data
-    const JT = {
-      contextInfo: {
-        externalAdReply: {
-          title: botname,
-          body: dev,
-          mediaType: 1,
-          previewType: 0,
-          mediaUrl: url,
-          sourceUrl: url,
-          thumbnail: thumb,
-          renderLargerThumbnail: true,
+
+    await conn.reply(
+      m.chat,
+      `
+⚽ 𝗬𝗼𝘂𝗧𝘂𝗯𝗲 𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱
+> 🎬 *${title}*
+> 👁️ *${vistas}*
+> ⏱️ *${timestamp}*
+> 📅 *${ago}*
+
+⚽ Procesando archivo...
+`,
+      m,
+      {
+        contextInfo: {
+          externalAdReply: {
+            title: botname,
+            body: dev,
+            mediaType: 1,
+            mediaUrl: url,
+            sourceUrl: url,
+            thumbnail: thumb,
+            renderLargerThumbnail: true
+          }
+        }
+      }
+    )
+
+    const type = ["play", "yta", "ytmp3", "playaudio"].includes(command) ? "audio" : "video"
+
+    const api = `https://rest.apicausas.xyz/api/v1/descargas/youtube?url=${encodeURIComponent(
+      url
+    )}&type=video&apikey=${API_KEY}`
+
+    const res = await fetch(api)
+    const json = await res.json()
+
+    if (!json?.status || !json?.data?.download?.url) {
+      throw new Error("No se pudo descargar el archivo")
+    }
+
+    const tmpDir = "./tmp"
+    if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir)
+
+    const base = Date.now()
+    const mp4Path = path.join(tmpDir, `${base}.mp4`)
+    const mp3Path = path.join(tmpDir, `${base}.mp3`)
+
+    const buffer = await fetch(json.data.download.url).then(r => r.arrayBuffer())
+    fs.writeFileSync(mp4Path, Buffer.from(buffer))
+
+    if (type === "audio") {
+      await new Promise((resolve, reject) => {
+        exec(`ffmpeg -y -i "${mp4Path}" -vn -ab 128k "${mp3Path}"`, err => {
+          if (err) reject(err)
+          else resolve()
+        })
+      })
+
+      await conn.sendMessage(
+        m.chat,
+        {
+          audio: fs.readFileSync(mp3Path),
+          fileName: `${title}.mp3`,
+          mimetype: "audio/mpeg",
+          ptt: false
         },
-      },
-    }
-
-    await conn.reply(m.chat, infoMessage, m, JT)
-
-    if (['play', 'yta', 'ytmp3', 'playaudio'].includes(command)) {
-      try {
-        const audioAPI = `https://rest.alyabotpe.xyz/dl/ytmp3?url=${encodeURIComponent(url)}&key=${API_KEY}`
-        const res = await fetch(audioAPI)
-        const json = await res.json()
-
-        if (json.status && json.data && json.data.dl) {
-          await conn.sendMessage(m.chat, {
-            audio: { url: json.data.dl },
-            fileName: `${json.data.title || 'audio'}.mp3`,
-            mimetype: 'audio/mpeg',
-            ptt: false
-          }, { quoted: m })
-        } else {
-          throw new Error('No se pudo obtener el audio')
-        }
-      } catch (e) {
-        return conn.reply(m.chat, `🌸 ¡Fallo en la descarga de audio! ${e.message}`, m)
-      }
-    } else if (['play2', 'ytv', 'ytmp4'].includes(command)) {
-      try {
-        const videoAPI = `https://api-causas.duckdns.org/api/v1/descargas/youtube?url=https://www.youtube.com/watch?v=kJQP7kiw5Fk&type=video&apikey=causa-dde39cb190dfc7d4`
-        const res = await fetch(videoAPI)
-        const json = await res.json()
-
-        if (json.status && json.data && json.data.dl) {
-          await conn.sendMessage(m.chat, {
-            video: { url: json.data.dl },
-            fileName: `${json.data.title || 'video'}.mp4`,
-            mimetype: 'video/mp4'
-          }, { quoted: m })
-        } else {
-          throw new Error('No se pudo obtener el video')
-        }
-      } catch (e) {
-        return conn.reply(m.chat, `🌸 ¡Fallo en la descarga de video! ${e.message}`, m)
-      }
+        { quoted: m }
+      )
     } else {
-      return conn.reply(m.chat, '✧︎ Comando no reconocido.', m)
+      await conn.sendMessage(
+        m.chat,
+        {
+          document: fs.readFileSync(mp4Path),
+          fileName: `${title}.mp4`,
+          mimetype: "video/mp4"
+        },
+        { quoted: m }
+      )
     }
 
-  } catch (error) {
-    return m.reply(`⚠︎ Ocurrió un error: ${error.message}`)
+    if (fs.existsSync(mp4Path)) fs.unlinkSync(mp4Path)
+    if (fs.existsSync(mp3Path)) fs.unlinkSync(mp3Path)
+
+    user.coin = (user.coin || 0) - COST
+
+    await conn.reply(
+      m.chat,
+      `⚽ Descarga completada.\n💎 Se descontaron *${COST}* monedas.\n💎 Cartera actual: *${user.coin}*`,
+      m
+    )
+  } catch (e) {
+    conn.reply(m.chat, `⚠︎ Error: ${e.message}`, m)
   }
 }
 
-handler.command = handler.help = ['play', 'yta', 'ytmp3', 'play2', 'ytv', 'ytmp4', 'playaudio']
-handler.tags = ['descargas']
+handler.command = handler.help = [
+  "play",
+  "yta",
+  "ytmp3",
+  "playaudio",
+  "play2",
+  "ytv",
+  "ytmp4"
+]
+handler.tags = ["descargas"]
 handler.group = true
+handler.register = true
 
 export default handler
 
 function formatViews(views) {
   if (!views) return "No disponible"
-  if (views >= 1_000_000_000) return `${(views / 1_000_000_000).toFixed(1)}B (${views.toLocaleString()})`
-  if (views >= 1_000_000) return `${(views / 1_000_000).toFixed(1)}M (${views.toLocaleString()})`
-  if (views >= 1_000) return `${(views / 1_000).toFixed(1)}k (${views.toLocaleString()})`
+  if (views >= 1e9) return `${(views / 1e9).toFixed(1)}B`
+  if (views >= 1e6) return `${(views / 1e6).toFixed(1)}M`
+  if (views >= 1e3) return `${(views / 1e3).toFixed(1)}k`
   return views.toString()
 }

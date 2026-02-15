@@ -6,21 +6,18 @@ import { exec } from "child_process"
 
 const API_KEY = "causa-b0ec2c842e895e70"
 const youtubeRegexID = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/
-const COST = 10
 
 const handler = async (m, { conn, text, command }) => {
   try {
     if (!text.trim()) {
-      return conn.reply(m.chat, "⚽ Ingresa el nombre o enlace del video.", m)
-    }
-
-    const user = global.db.data.users[m.sender]
-
-    if ((user.coin || 0) < COST) {
-      const faltante = COST - (user.coin || 0)
       return conn.reply(
         m.chat,
-        `⚽ No tienes suficientes monedas.\n\n💎 Necesitas: *${COST}*\n💎 Tienes: *${user.coin || 0}*\n💎 Te faltan: *${faltante}*`,
+        `╭─「 🌸 *WAGURI BOT* 🌸 」\n` +
+        `│\n` +
+        `│ 🎵 Ingresa el nombre o enlace\n` +
+        `│    del video que deseas ~\n` +
+        `│\n` +
+        `╰────────────────────`,
         m
       )
     }
@@ -35,23 +32,38 @@ const handler = async (m, { conn, text, command }) => {
     }
 
     ytSearch = ytSearch.all?.[0] || ytSearch.videos?.[0] || ytSearch
-    if (!ytSearch) return conn.reply(m.chat, "✧ No se encontraron resultados.", m)
+
+    if (!ytSearch) return conn.reply(
+      m.chat,
+      `╭─「 🌸 *WAGURI BOT* 🌸 」\n` +
+      `│\n` +
+      `│ 🦋 No encontré resultados~\n` +
+      `│    Intenta con otro nombre\n` +
+      `│    o enlace ✨\n` +
+      `│\n` +
+      `╰────────────────────`,
+      m
+    )
 
     const { title, thumbnail, timestamp, views, ago, url } = ytSearch
     const vistas = formatViews(views)
     const thumb = (await conn.getFile(thumbnail))?.data
+    const type = ["play", "yta", "ytmp3", "playaudio"].includes(command) ? "audio" : "video"
 
     await conn.reply(
       m.chat,
-      `
-⚽ 𝗬𝗼𝘂𝗧𝘂𝗯𝗲 𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱
-> 🎬 *${title}*
-> 👁️ *${vistas}*
-> ⏱️ *${timestamp}*
-> 📅 *${ago}*
-
-⚽ Procesando archivo...
-`,
+      `╭─「 🌸 *WAGURI BOT* 🌸 」\n` +
+      `│\n` +
+      `│ 🎬 *${title}*\n` +
+      `│\n` +
+      `│ 👁️ Vistas   » *${vistas}*\n` +
+      `│ ⏳ Duración » *${timestamp}*\n` +
+      `│ 📅 Subido   » *${ago}*\n` +
+      `│\n` +
+      `│ 📥 Procesando tu archivo~\n` +
+      `│    Por favor espera 💗\n` +
+      `│\n` +
+      `╰────────────────────`,
       m,
       {
         contextInfo: {
@@ -68,17 +80,13 @@ const handler = async (m, { conn, text, command }) => {
       }
     )
 
-    const type = ["play", "yta", "ytmp3", "playaudio"].includes(command) ? "audio" : "video"
-
-    const api = `https://rest.apicausas.xyz/api/v1/descargas/youtube?url=${encodeURIComponent(
-      url
-    )}&type=video&apikey=${API_KEY}`
+    const api = `https://rest.apicausas.xyz/api/v1/descargas/youtube?url=${encodeURIComponent(url)}&type=video&apikey=${API_KEY}`
 
     const res = await fetch(api)
     const json = await res.json()
 
     if (!json?.status || !json?.data?.download?.url) {
-      throw new Error("No se pudo descargar el archivo")
+      throw new Error("No se pudo obtener el archivo")
     }
 
     const tmpDir = "./tmp"
@@ -124,27 +132,32 @@ const handler = async (m, { conn, text, command }) => {
     if (fs.existsSync(mp4Path)) fs.unlinkSync(mp4Path)
     if (fs.existsSync(mp3Path)) fs.unlinkSync(mp3Path)
 
-    user.coin = (user.coin || 0) - COST
-
     await conn.reply(
       m.chat,
-      `⚽ Descarga completada.\n💎 Se descontaron *${COST}* monedas.\n💎 Cartera actual: *${user.coin}*`,
+      `╭─「 🌸 *WAGURI BOT* 🌸 」\n` +
+      `│\n` +
+      `│ ✅ *¡Listo!* Tu archivo llegó ~\n` +
+      `│ 🌸 Disfrútalo mucho 💗\n` +
+      `│\n` +
+      `╰────────────────────`,
       m
     )
+
   } catch (e) {
-    conn.reply(m.chat, `⚠︎ Error: ${e.message}`, m)
+    conn.reply(
+      m.chat,
+      `╭─「 🌸 *WAGURI BOT* 🌸 」\n` +
+      `│\n` +
+      `│ ❌ Ocurrió un error~\n` +
+      `│ ⚠️ *${e.message}*\n` +
+      `│\n` +
+      `╰────────────────────`,
+      m
+    )
   }
 }
 
-handler.command = handler.help = [
-  "play",
-  "yta",
-  "ytmp3",
-  "playaudio",
-  "play2",
-  "ytv",
-  "ytmp4"
-]
+handler.command = handler.help = ["play", "yta", "ytmp3", "playaudio", "play2", "ytv", "ytmp4"]
 handler.tags = ["descargas"]
 handler.group = true
 handler.register = true

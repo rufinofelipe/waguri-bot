@@ -4,7 +4,7 @@ import fetch from 'node-fetch'
 
 const channelId = '120363423258391692@newsletter'
 const channelName = '🌸❖𝗪𝗔𝗚𝗨𝗥𝗜 𝗕𝗢𝗧❖🌸'
-const menuImage = 'https://cdn.hostrta.win/fl/85rm.jpg'
+const menuImage = 'https://www.mediafire.com/view/ifhp8zdpekxxbct/IMG-20260105-WA0229.jpg/file'
 
 let handler = async (m, { conn }) => {
   let mentionedJid = m.mentionedJid

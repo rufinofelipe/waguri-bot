@@ -16,301 +16,209 @@ let handler = async (m, { conn }) => {
   const uptime = clockString(process.uptime() * 1000)
 
   let txt = `
-┏━━━━━━━━━━━━━━━━━━┓
-     𝗪𝗔𝗚𝗨𝗥𝗜 𝗕𝗢𝗧
-┗━━━━━━━━━━━━━━━━━━┛
-
-🌸 ¡Hola @${userId.split('@')[0]}!
-🤖 Mi nombre es ${botname}
-
-┏━━━━━━━━━━━━━━━━━━┓
-    📊 𝗘𝗦𝗧𝗔𝗗𝗜́𝗦𝗧𝗜𝗖𝗔𝗦
-┗━━━━━━━━━━━━━━━━━━┛
-• 🏷️  Tipo: ${(conn.user.jid == global.conn.user.jid ? 'Principal' : 'Sub-bot')}
-• ⏰  Activo: ${uptime}
-• 👥  Usuarios: ${totalreg}
-• 📚  Biblioteca: Baileys
-
-┏━━━━━━━━━━━━━━━━━━┓
-    ⚙️ 𝗛𝗘𝗥𝗥𝗔𝗠𝗜𝗘𝗡𝗧𝗔𝗦
-┗━━━━━━━━━━━━━━━━━━┛
- ❀ /autoadmin
- > hace admin al bot
-
- ❀ /ping
- > comprueba el tiempo de respuesta 
-
- ❀ /demote
- > descarta a un usuario como admin 
-
- ❀ /join
- > el bot se une a otro
-
- ❀ /quitar prefijo
- > quita el prefijo de comandos 
-
- ❀ /update
- > actulizar bot
-
- ❀ /setprefijo
- > poner prefijo de comandos 
-
- ❀ /bots
- > ver listo de subbots 
-
- ❀ /delprimary 
- > elimina el bot primario 
-
- ❀ /delprimary2
- > elimina al segundo bot primario 
-
- ❀ /leave
- > salir de un grupo 
-
- ❀ /logotipo
- > poner logo
-
- ❀ /reload
- > reactivar el bot
-
- ❀ /setbanner
- > poner banner 
-
- ❀ /setcurrency
- > poner moneda 
-
- ❀ /setname
- > poner nombre 
-
- ❀ /setprimary
- > elegir bot primario 
-
- ❀ /tag
- > menciana a todos los usuarios 
-
- ❀ /invocar
- > invocar al grupo 
-
- ❀ /sticker
- > hacer sticker
-
- ❀ /kick
- > elimina a un usuario  
-
- ❀ /antilink
- > anti enlace 
-
- ❀ /del
- > elimina un mensaje
-
- ❀ /reg
- > regístrate en el bot
-
- ❀ /creador
- > lista de los creadores del bot
-
- ❀ /repo
- > muestra el repositorio del bot 
-
- ❀ /link
- > muestra los enlaces oficiales 
-
- ❀ /emojimix 😀+😀
- > combina dos emojis
-
- ❀ /letra
- > busca la letra de una canción 
-
- > 
-
- ┏━━━━━━━━━━━━━━━━━━┓
-     🎮 𝗗𝗜𝗩𝗘𝗥𝗦𝗜𝗢́𝗡
- ┗━━━━━━━━━━━━━━━━━━┛
- ❀ /doxear
- > simula un doxeo
-
- ❀ /facto
- > tira un facto aleatorio
-
- ❀ /piropo
- > tira un piropo
-
- ❀ /reto 
- > el bot te reta
-
- ❀ /top <texto>
- > top 10 de una categoría 
-
- ❀ /iqtest
- > el bot hace un test de tu iq
-
- ❀ /gey <usuario>
- > el bot muestra a un gay
-
-┏━━━━━━━━━━━━━━━━━━┓
-     🎨 𝗔𝗡𝗜𝗠𝗘
-┗━━━━━━━━━━━━━━━━━━┛
- ❀ /bath  
- > Bañarse
-
- ❀ /bite  
- > Morder
-
- ❀ /blush  
- > Sonrojarse
-
- ❀ /bored  
- > Estar aburrido
-
- ❀ /buenas-noches  
- > Desear buenas noches
-
- ❀ /buenos-dias  
- > Desear buenos días
-
- ❀ /cry  
- > Llorar
-
- ❀ /dance  
- > Bailar
-
- ❀ /fumar  
- > Fumar
-
- ❀ /hug  
- > Abrazar
-
- ❀ /kiss  
- > Besar
-
- ❀ /pensar  
- > Pensar
-
- ❀ /sacred  
- > asustado 
-
- ❀ /slap  
- > Dar una cachetada
-
- ❀ /sleep  
- > Dormir
-
- ┏━━━━━━━━━━━━━━━━━━┓
-     🤖 𝗜𝗡𝗧𝗘𝗟𝗜𝗚𝗘𝗡𝗖𝗜𝗔 𝗔𝗥𝗧𝗜𝗙𝗜𝗖𝗜𝗔𝗟
- ┗━━━━━━━━━━━━━━━━━━┛
- ❀ /copilot  
- > habla con copilot 
-
- ❀ /gemini  
- > habla con gemini
-
- ❀ /GPT
- > habla con ChatGPT 
-
- ┏━━━━━━━━━━━━━━━━━━┓
-     📥 𝗗𝗘𝗦𝗖𝗔𝗥𝗚𝗔𝗦
- ┗━━━━━━━━━━━━━━━━━━┛
- ❀ /play  
- > Descargar música desde YouTube  
-
- ❀ /play2  
- > Descargar videos desde YouTube  
-
- ❀ /tiktoksearch  
- > Buscar contenido en TikTok para   descargar
- 
- ❀ /ig
- > descarga archivos de Instagram
-
- ❀ /APK
- > descarga una aplicación
-
- ❀ /pin
- > descargar archivos de pinterest 
-
- ┏━━━━━━━━━━━━━━━━━━┓
-     ⚔️ 𝗥𝗣𝗚
- ┗━━━━━━━━━━━━━━━━━━┛
- ❀ /cazar  
- > inicia una misión de caza
-
- ❀ /contratos  
- > muestra contratos especiales
-
- ❀ /aceptar <id>  
- > acepta un contrato del tablero
-
- ❀ /completar  
- > completa el contrato activo
-
- ❀ /perfil  
- > muestra tus estadísticas
-
- ❀ /diario  
- > reclama recompensa diaria
-
- ❀ /minar  
- > mina criptomonedas
-
- ❀ /transferir @usuario cantidad  
- > envía créditos a otro jugador
-
- ❀ /taller  
- > abre la tienda de mejoras
-
- ❀ /comprar <objeto>  
- > compra un ítem del taller
-
- ❀ /comprar.boy <objeto>  
- > compra un objeto especial
-
- ❀ /item  
- > muestra información de un objeto
-
- ❀ /vender <objeto>  
- > vende un ítem de tu inventario
-
- ❀ /duelo @usuario  
- > reta a un duelo pvp
-
- ❀ /hack  
- > hackea sistemas para ganar recompensas
-
- ❀ /best  
- > ranking de mejores jugadores
-
- ❀ /estadisticas  
- > muestra stats detalladas
-
- ❀ /inventario  
- > revisa tu equipo disponible
-
- ┏━━━━━━━━━━━━━━━━━━┓
-     💰 𝗘𝗖𝗢𝗡𝗢𝗠𝗜́𝗔
- ┗━━━━━━━━━━━━━━━━━━┛
- ❀ /trabajar
- > realiza diversos trabajos para ganar dinero 
-
- ❀ /balance
- > consulta tu dinero en efectivo y banco
-
- ❀ /pay @usuario <cantidad>
- > transfiere ${moneda} desde tu banco a otro usuario
-
- ❀ /minar
- > mina criptomonedas con sistema de probabilidades
-
- ❀ /rob @usuario
- > intenta robar ${moneda} de otro jugador (riesgoso)
-
- ❀ /deposit <cantidad>
- > deposita tu dinero en el banco para protegerlo
-
- ❀ /withdraw <cantidad>
- > retira dinero de tu banco al efectivo
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
+✿°• 𝗪𝗔𝗚𝗨𝗥𝗜 𝗕𝗢𝗧 •°✿
+- ┈┈∘┈˃̶✿˂̶┈∘┈┈ -
+
+𑁍𓂃 ¡Hola @${userId.split('@')[0]}! ⸜(｡˃ᵕ˂)⸝♡
+𑁍𓂃 Soy ${botname}
+
+- ┈┈∘┈˃̶✿˂̶┈∘┈┈ -
+𑁍𓂃 𓈒𓏸 *ᴛɪᴘᴏ ::* ${conn.user.jid == global.conn.user.jid ? 'Principal' : 'Sub-bot'}
+𑁍𓂃 𓈒𓏸 *ᴜᴘᴛɪᴍᴇ ::* ${uptime}
+𑁍𓂃 𓈒𓏸 *ᴜsᴇʀs ::* ${totalreg}
+𑁍𓂃 𓈒𓏸 *ʟɪʙ ::* Baileys
+- ┈┈∘┈˃̶✿˂̶┈∘┈┈ -
+
+✾) ᅠ⌜ ⚙️ 𝗛𝗘𝗥𝗥𝗔𝗠𝗜𝗘𝗡𝗧𝗔𝗦 ⌝
+
+·˚꒰ /autoadmin ꒱˚·
+ ᜒ✿ hace admin al bot
+·˚꒰ /ping ꒱˚·
+ ᜒ✿ tiempo de respuesta
+·˚꒰ /demote ꒱˚·
+ ᜒ✿ quitar admin a usuario
+·˚꒰ /join ꒱˚·
+ ᜒ✿ unirse a otro grupo
+·˚꒰ /quitar prefijo ꒱˚·
+ ᜒ✿ quita el prefijo
+·˚꒰ /update ꒱˚·
+ ᜒ✿ actualizar el bot
+·˚꒰ /setprefijo ꒱˚·
+ ᜒ✿ poner prefijo
+·˚꒰ /bots ꒱˚·
+ ᜒ✿ lista de subbots
+·˚꒰ /delprimary ꒱˚·
+ ᜒ✿ elimina bot primario
+·˚꒰ /delprimary2 ꒱˚·
+ ᜒ✿ elimina 2do primario
+·˚꒰ /leave ꒱˚·
+ ᜒ✿ salir de un grupo
+·˚꒰ /logotipo ꒱˚·
+ ᜒ✿ poner logo
+·˚꒰ /reload ꒱˚·
+ ᜒ✿ reactivar el bot
+·˚꒰ /setbanner ꒱˚·
+ ᜒ✿ poner banner
+·˚꒰ /setcurrency ꒱˚·
+ ᜒ✿ poner moneda
+·˚꒰ /setname ꒱˚·
+ ᜒ✿ poner nombre
+·˚꒰ /setprimary ꒱˚·
+ ᜒ✿ elegir bot primario
+·˚꒰ /tag ꒱˚·
+ ᜒ✿ mencionar a todos
+·˚꒰ /invocar ꒱˚·
+ ᜒ✿ invocar al grupo
+·˚꒰ /sticker ꒱˚·
+ ᜒ✿ crear sticker
+·˚꒰ /kick ꒱˚·
+ ᜒ✿ eliminar usuario
+·˚꒰ /antilink ꒱˚·
+ ᜒ✿ activar anti-enlace
+·˚꒰ /del ꒱˚·
+ ᜒ✿ eliminar mensaje
+·˚꒰ /reg ꒱˚·
+ ᜒ✿ registrarse en el bot
+·˚꒰ /creador ꒱˚·
+ ᜒ✿ ver creadores
+·˚꒰ /repo ꒱˚·
+ ᜒ✿ repositorio del bot
+·˚꒰ /link ꒱˚·
+ ᜒ✿ enlaces oficiales
+·˚꒰ /emojimix ꒱˚·
+ ᜒ✿ combinar emojis
+·˚꒰ /letra ꒱˚·
+ ᜒ✿ letra de canción
+
+✾) ᅠ⌜ 🎮 𝗗𝗜𝗩𝗘𝗥𝗦𝗜𝗢́𝗡 ⌝
+
+·˚꒰ /doxear ꒱˚·
+ ᜒ✿ simula un doxeo
+·˚꒰ /facto ꒱˚·
+ ᜒ✿ dato aleatorio
+·˚꒰ /piropo ꒱˚·
+ ᜒ✿ tira un piropo
+·˚꒰ /reto ꒱˚·
+ ᜒ✿ el bot te reta
+·˚꒰ /top <texto> ꒱˚·
+ ᜒ✿ top 10 de categoría
+·˚꒰ /iqtest ꒱˚·
+ ᜒ✿ test de iq
+·˚꒰ /gey <usuario> ꒱˚·
+ ᜒ✿ señala un gay
+
+✾) ᅠ⌜ 🎨 𝗔𝗡𝗜𝗠𝗘 ⌝
+
+·˚꒰ /bath ꒱˚·
+ ᜒ✿ bañarse
+·˚꒰ /bite ꒱˚·
+ ᜒ✿ morder
+·˚꒰ /blush ꒱˚·
+ ᜒ✿ sonrojarse
+·˚꒰ /bored ꒱˚·
+ ᜒ✿ estar aburrido
+·˚꒰ /buenas-noches ꒱˚·
+ ᜒ✿ desear buenas noches
+·˚꒰ /buenos-dias ꒱˚·
+ ᜒ✿ desear buenos días
+·˚꒰ /cry ꒱˚·
+ ᜒ✿ llorar
+·˚꒰ /dance ꒱˚·
+ ᜒ✿ bailar
+·˚꒰ /fumar ꒱˚·
+ ᜒ✿ fumar
+·˚꒰ /hug ꒱˚·
+ ᜒ✿ abrazar
+·˚꒰ /kiss ꒱˚·
+ ᜒ✿ besar
+·˚꒰ /pensar ꒱˚·
+ ᜒ✿ pensar
+·˚꒰ /sacred ꒱˚·
+ ᜒ✿ asustarse
+·˚꒰ /slap ꒱˚·
+ ᜒ✿ dar una cachetada
+·˚꒰ /sleep ꒱˚·
+ ᜒ✿ dormir
+
+✾) ᅠ⌜ 🤖 𝗜𝗔 ⌝
+
+·˚꒰ /copilot ꒱˚·
+ ᜒ✿ habla con Copilot
+·˚꒰ /gemini ꒱˚·
+ ᜒ✿ habla con Gemini
+·˚꒰ /GPT ꒱˚·
+ ᜒ✿ habla con ChatGPT
+
+✾) ᅠ⌜ 📥 𝗗𝗘𝗦𝗖𝗔𝗥𝗚𝗔𝗦 ⌝
+
+·˚꒰ /play ꒱˚·
+ ᜒ✿ música desde YouTube
+·˚꒰ /play2 ꒱˚·
+ ᜒ✿ videos desde YouTube
+·˚꒰ /tiktoksearch ꒱˚·
+ ᜒ✿ buscar en TikTok
+·˚꒰ /ig ꒱˚·
+ ᜒ✿ descargar Instagram
+·˚꒰ /APK ꒱˚·
+ ᜒ✿ descargar aplicación
+·˚꒰ /pin ꒱˚·
+ ᜒ✿ descargar Pinterest
+
+✾) ᅠ⌜ ⚔️ 𝗥𝗣𝗚 ⌝
+
+·˚꒰ /cazar ꒱˚·
+ ᜒ✿ iniciar misión de caza
+·˚꒰ /contratos ꒱˚·
+ ᜒ✿ ver contratos especiales
+·˚꒰ /aceptar <id> ꒱˚·
+ ᜒ✿ aceptar un contrato
+·˚꒰ /completar ꒱˚·
+ ᜒ✿ completar contrato activo
+·˚꒰ /perfil ꒱˚·
+ ᜒ✿ ver tus estadísticas
+·˚꒰ /diario ꒱˚·
+ ᜒ✿ recompensa diaria
+·˚꒰ /minar ꒱˚·
+ ᜒ✿ minar criptomonedas
+·˚꒰ /transferir @usuario cantidad ꒱˚·
+ ᜒ✿ enviar créditos
+·˚꒰ /taller ꒱˚·
+ ᜒ✿ tienda de mejoras
+·˚꒰ /comprar <objeto> ꒱˚·
+ ᜒ✿ comprar ítem del taller
+·˚꒰ /comprar.boy <objeto> ꒱˚·
+ ᜒ✿ comprar objeto especial
+·˚꒰ /item ꒱˚·
+ ᜒ✿ info de un objeto
+·˚꒰ /vender <objeto> ꒱˚·
+ ᜒ✿ vender ítem del inventario
+·˚꒰ /duelo @usuario ꒱˚·
+ ᜒ✿ retar a duelo PvP
+·˚꒰ /hack ꒱˚·
+ ᜒ✿ hackear para recompensas
+·˚꒰ /best ꒱˚·
+ ᜒ✿ ranking de jugadores
+·˚꒰ /estadisticas ꒱˚·
+ ᜒ✿ stats detalladas
+·˚꒰ /inventario ꒱˚·
+ ᜒ✿ revisar tu equipo
+
+✾) ᅠ⌜ 💰 𝗘𝗖𝗢𝗡𝗢𝗠𝗜́𝗔 ⌝
+
+·˚꒰ /trabajar ꒱˚·
+ ᜒ✿ ganar dinero con trabajos
+·˚꒰ /balance ꒱˚·
+ ᜒ✿ ver efectivo y banco
+·˚꒰ /pay @usuario <cantidad> ꒱˚·
+ ᜒ✿ transferir ${moneda}
+·˚꒰ /rob @usuario ꒱˚·
+ ᜒ✿ robar ${moneda} (riesgoso)
+·˚꒰ /deposit <cantidad> ꒱˚·
+ ᜒ✿ depositar al banco
+·˚꒰ /withdraw <cantidad> ꒱˚·
+ ᜒ✿ retirar del banco
+
+- ┈┈∘┈˃̶✿˂̶┈∘┈┈ -
 `.trim()
 
   await conn.sendMessage(m.chat, {
@@ -341,4 +249,4 @@ function clockString(ms) {
   let minutes = Math.floor((ms / (1000 * 60)) % 60)
   let hours = Math.floor((ms / (1000 * 60 * 60)) % 24)
   return `${hours}h ${minutes}m ${seconds}s`
-}
+    }

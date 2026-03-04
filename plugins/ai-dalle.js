@@ -43,7 +43,7 @@ async function handler(m, { conn, text, usedPrefix, command }) {
       `📝 *Prompt:* ${text}`,
       `🖌️ *Estilo:* Photorealism`,
       ``,
-      `> Powered by Flux Image Gen`
+      `> Powered by Waguri bot`
     ].join("\n")
 
     await conn.sendMessage(m.chat, {

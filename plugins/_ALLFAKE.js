@@ -73,24 +73,17 @@ global.safeFetch = async function safeFetch(url, options = {}) {
         const timeoutId = setTimeout(() => controller.abort(), options.timeout || 10000)
         const response = await fetch(url, {
             signal: controller.signal,
-            timeout: options.timeout || 10000,
             ...options
         })
         clearTimeout(timeoutId)
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-        }
+        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`)
         return response
     } catch (error) {
         console.log(`⚠️ SafeFetch error para ${url}: ${error.message}`)
         if (url.includes('catbox.moe') && options.fallbackUrl) {
-            console.log(`🔄 Intentando con URL fallback: ${options.fallbackUrl}`)
             try {
-                return await fetch(options.fallbackUrl, {
-                    timeout: 5000
-                })
+                return await fetch(options.fallbackUrl, { timeout: 5000 })
             } catch (fallbackError) {
-                console.log(`❌ Fallback también falló: ${fallbackError.message}`)
                 throw new Error(`Tanto URL principal como fallback fallaron`)
             }
         }
@@ -116,7 +109,6 @@ async function loadIconOptimized() {
     const cacheExpiry = 1000 * 60 * 60 * 12
     const cached = global.iconCache.get(cacheKey)
     if (cached && (Date.now() - cached.timestamp) < cacheExpiry) {
-        console.log(`✅ Usando icono desde caché`)
         global.icons = cached.data
         return
     }
@@ -127,225 +119,121 @@ async function loadIconOptimized() {
             const category = "imagen"
             const random = Math.floor(Math.random() * db_.links[category].length)
             const randomlink = db_.links[category][random]
-            console.log(`🔄 Cargando icono en background: ${randomlink}`)
             const response = await global.safeFetch(randomlink, {
                 timeout: 5000,
                 fallbackUrl: global.defaultIcon
             })
             if (response.ok) {
-                const rimg = await response.buffer()
-                global.iconCache.set(cacheKey, {
-                    data: rimg,
-                    timestamp: Date.now()
-                })
+                const rimg = Buffer.from(await response.arrayBuffer())
+                global.iconCache.set(cacheKey, { data: rimg, timestamp: Date.now() })
                 global.icons = rimg
-                console.log(`✅ Icono cargado y cacheado exitosamente`)
             } else {
                 throw new Error(`HTTP ${response.status}`)
             }
         } catch (error) {
-            console.log(`⚠️ Error cargando icono en background: ${error.message}`)
+            console.log(`⚠️ Error cargando icono: ${error.message}`)
             try {
-                const fallbackResponse = await global.safeFetch(global.defaultIcon, {
-                    timeout: 3000
-                })
+                const fallbackResponse = await global.safeFetch(global.defaultIcon, { timeout: 3000 })
                 if (fallbackResponse.ok) {
-                    const fallbackImg = await fallbackResponse.buffer()
-                    global.iconCache.set(cacheKey, {
-                        data: fallbackImg,
-                        timestamp: Date.now()
-                    })
+                    const fallbackImg = Buffer.from(await fallbackResponse.arrayBuffer())
+                    global.iconCache.set(cacheKey, { data: fallbackImg, timestamp: Date.now() })
                     global.icons = fallbackImg
-                    console.log(`✅ Icono fallback cargado`)
                 }
-            } catch (fallbackError) {
-                console.log('⚠️ Usando modo sin icono')
+            } catch {
                 global.icons = null
             }
         }
     })
-    if (!cached) {
-        console.log('🔄 Usando modo rápido sin descarga inicial...')
-        global.icons = null
-    }
+    if (!cached) global.icons = null
 }
+
+// Limpiar caché cada 30 min (fuera del handler)
+setInterval(() => {
+    if (global.iconCache && global.iconCache.size > 50) {
+        const now = Date.now()
+        for (const [key, value] of global.iconCache.entries()) {
+            if (now - value.timestamp > 1000 * 60 * 30) {
+                global.iconCache.delete(key)
+            }
+        }
+        console.log(`🧹 Cache limpiado: ${global.iconCache.size} elementos restantes`)
+    }
+}, 1000 * 60 * 30)
 
 // Handler
 var handler = m => m
 
 handler.all = async function(m) {
-    // Configurar ofcbot con conn si está disponible
     if (!global.ofcbot && m && m.conn) {
         global.ofcbot = `${m.conn.user.jid.split('@')[0]}`
     }
-    
-    global.d = new Date(new Date() + 3600000)
+
+    global.d = new Date(Date.now() + 3600000)
     global.locale = 'es'
-    global.dia = global.d.toLocaleDateString(global.locale, {
-        weekday: 'long'
-    })
-    global.fecha = global.d.toLocaleDateString('es', {
-        day: 'numeric',
-        month: 'numeric',
-        year: 'numeric'
-    })
-    global.mes = global.d.toLocaleDateString('es', {
-        month: 'long'
-    })
-    global.año = global.d.toLocaleDateString('es', {
-        year: 'numeric'
-    })
-    global.tiempo = global.d.toLocaleString('en-US', {
-        hour: 'numeric',
-        minute: 'numeric',
-        second: 'numeric',
-        hour12: true
-    })
-    
-    global.emojis = [global.emoji, global.emoji2, global.emoji3, global.emoji4].getRandom ? [global.emoji, global.emoji2, global.emoji3, global.emoji4].getRandom() : pickRandom([global.emoji, global.emoji2, global.emoji3, global.emoji4])
-    
-    await loadIconOptimized()
-    
-    setInterval(() => {
-        if (global.iconCache && global.iconCache.size > 50) {
-            const now = Date.now()
-            const expiry = 1000 * 60 * 30
-            for (const [key, value] of global.iconCache.entries()) {
-                if (now - value.timestamp > expiry) {
-                    global.iconCache.delete(key)
-                }
-            }
-            console.log(`🧹 Cache limpiado: ${global.iconCache.size} elementos restantes`)
-        }
-    }, 1000 * 60 * 30)
-    
+    global.dia = global.d.toLocaleDateString(global.locale, { weekday: 'long' })
+    global.fecha = global.d.toLocaleDateString('es', { day: 'numeric', month: 'numeric', year: 'numeric' })
+    global.mes = global.d.toLocaleDateString('es', { month: 'long' })
+    global.año = global.d.toLocaleDateString('es', { year: 'numeric' })
+    global.tiempo = global.d.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true })
+
+    global.emojis = pickRandom([global.emoji, global.emoji2, global.emoji3, global.emoji4])
+
     var ase = new Date()
     var hour = ase.getHours()
-    switch (hour) {
-        case 0:
-            hour = 'Lɪɴᴅᴀ Nᴏᴄʜᴇ 🌃'
-            break
-        case 1:
-            hour = 'Lɪɴᴅᴀ Nᴏᴄʜᴇ 🌃'
-            break
-        case 2:
-            hour = 'Lɪɴᴅᴀ Nᴏᴄʜᴇ 🌃'
-            break
-        case 3:
-            hour = 'Lɪɴᴅᴀ Mᴀɴ̃ᴀɴᴀ 🌄'
-            break
-        case 4:
-            hour = 'Lɪɴᴅᴀ Mᴀɴ̃ᴀɴᴀ 🌄'
-            break
-        case 5:
-            hour = 'Lɪɴᴅᴀ Mᴀɴ̃ᴀɴᴀ 🌄'
-            break
-        case 6:
-            hour = 'Lɪɴᴅᴀ Mᴀɴ̃ᴀɴᴀ 🌄'
-            break
-        case 7:
-            hour = 'Lɪɴᴅᴀ Mᴀɴ̃ᴀɴᴀ 🌅'
-            break
-        case 8:
-            hour = 'Lɪɴᴅᴀ Mᴀɴ̃ᴀɴᴀ 🌄'
-            break
-        case 9:
-            hour = 'Lɪɴᴅᴀ Mᴀɴ̃ᴀɴᴀ 🌄'
-            break
-        case 10:
-            hour = 'Lɪɴᴅᴏ Dɪᴀ 🌤'
-            break
-        case 11:
-            hour = 'Lɪɴᴅᴏ Dɪᴀ 🌤'
-            break
-        case 12:
-            hour = 'Lɪɴᴅᴏ Dɪᴀ 🌤'
-            break
-        case 13:
-            hour = 'Lɪɴᴅᴏ Dɪᴀ 🌤'
-            break
-        case 14:
-            hour = 'Lɪɴᴅᴀ Tᴀʀᴅᴇ 🌆'
-            break
-        case 15:
-            hour = 'Lɪɴᴅᴀ Tᴀʀᴅᴇ 🌆'
-            break
-        case 16:
-            hour = 'Lɪɴᴅᴀ Tᴀʀᴅᴇ 🌆'
-            break
-        case 17:
-            hour = 'Lɪɴᴅᴀ Tᴀʀᴅᴇ 🌆'
-            break
-        case 18:
-            hour = 'Lɪɴᴅᴀ Nᴏᴄʜᴇ 🌃'
-            break
-        case 19:
-            hour = 'Lɪɴᴅᴀ Nᴏᴄʜᴇ 🌃'
-            break
-        case 20:
-            hour = 'Lɪɴᴅᴀ Nᴏᴄʜᴇ 🌃'
-            break
-        case 21:
-            hour = 'Lɪɴᴅᴀ Nᴏᴄʜᴇ 🌃'
-            break
-        case 22:
-            hour = 'Lɪɴᴅᴀ Nᴏᴄʜᴇ 🌃'
-            break
-        case 23:
-            hour = 'Lɪɴᴅᴀ Nᴏᴄʜᴇ 🌃'
-            break
-    }
-    
+    if (hour >= 0 && hour <= 2) hour = 'Lɪɴᴅᴀ Nᴏᴄʜᴇ 🌃'
+    else if (hour >= 3 && hour <= 9) hour = 'Lɪɴᴅᴀ Mᴀɴ̃ᴀɴᴀ 🌄'
+    else if (hour >= 10 && hour <= 13) hour = 'Lɪɴᴅᴏ Dɪᴀ 🌤'
+    else if (hour >= 14 && hour <= 17) hour = 'Lɪɴᴅᴀ Tᴀʀᴅᴇ 🌆'
+    else hour = 'Lɪɴᴅᴀ Nᴏᴄʜᴇ 🌃'
     global.saludo = hour
+
     global.nombre = m.pushName || 'Anónimo'
     global.taguser = '@' + m.sender.split("@s.whatsapp.net")[0]
     var more = String.fromCharCode(8206)
     global.readMore = more.repeat(850)
+
     global.packsticker = `🏆━━━✦✧✦━━━🏆
 ❖ Usuario: ${global.nombre}
-✩ Bot: ${global.ofcbot}
+✩ Bot: ${global.ofcbot || 'Bot'}
 📅 Fecha: ${global.fecha}
 ⏰ Hora: ${global.tiempo}
 🏆━━━✦✧✦━━━🏆`
     global.packsticker2 = ` 🏆━━━✦✧✦━━━🏆 ${global.creador} `
-    
-    // Redes
+
     var canal = 'https://whatsapp.com/channel/0029VbBUHyQCsU9IpJ0oIO2i'
     var comunidad = 'https://chat.whatsapp.com/LRQrf8vv50BDtwN8JWfhrX'
     var git = 'https://github.com/Brauliovh3'
     var github = 'https://github.com/Brauliovh3/HATSUNE-MIKU'
     let correo = 'duartexv.ofc@gmail.com'
-    global.redes = [canal, comunidad, git, github, correo].getRandom ? [canal, comunidad, git, github, correo].getRandom() : pickRandom([canal, comunidad, git, github, correo])
-    
-    // Foto de perfil
+    global.redes = pickRandom([canal, comunidad, git, github, correo])
+
     try {
         if (m.conn) {
             global.fotoperfil = await m.conn.profilePictureUrl(m.sender, 'image').catch(_ => 'https://cdn.hostrta.win/fl/9zsk.jpg')
         }
-    } catch (error) {
+    } catch {
         global.fotoperfil = 'https://cdn.hostrta.win/fl/9zsk.jpg'
     }
-    
+
+    await loadIconOptimized()
     global.channelRD = await getRandomChannel()
-    
+
     global.fkontak = {
         key: {
             participant: `0@s.whatsapp.net`,
-            ...(m.chat ? {
-                remoteJid: `6285600793871-1614953337@g.us`
-            } : {})
+            ...(m.chat ? { remoteJid: `6285600793871-1614953337@g.us` } : {})
         },
         message: {
-            'contactMessage': {
-                'displayName': `${global.nombre}`,
-                'vcard': `BEGIN:VCARD\nVERSION:3.0\nN:XL;${global.nombre},;;;\nFN:${global.nombre},\nitem1.TEL;waid=${m.sender.split('@')[0]}:${m.sender.split('@')[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD`,
-                'jpegThumbnail': null,
+            contactMessage: {
+                displayName: `${global.nombre}`,
+                vcard: `BEGIN:VCARD\nVERSION:3.0\nN:XL;${global.nombre},;;;\nFN:${global.nombre},\nitem1.TEL;waid=${m.sender.split('@')[0]}:${m.sender.split('@')[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD`,
+                jpegThumbnail: null,
                 thumbnail: null,
                 sendEphemeral: true
             }
         }
     }
-    
+
     global.fake = {
         contextInfo: {
             isForwarded: true,
@@ -356,9 +244,17 @@ handler.all = async function(m) {
             }
         }
     }
-    
-    global.icono = ['https://cdn.hostrta.win/fl/9zsk.jpg'].getRandom ? ['https://cdn.hostrta.win/fl/9zsk.jpg'].getRandom() : pickRandom(['https://cdn.hostrta.win/fl/9zsk.jpg'])
-    
+
+    global.icono = 'https://cdn.hostrta.win/fl/9zsk.jpg'
+
+    let iconBuffer
+    if (global.icons) {
+        iconBuffer = global.icons
+    } else {
+        const iconRes = await fetch(global.icono)
+        iconBuffer = Buffer.from(await iconRes.arrayBuffer())
+    }
+
     global.rcanal = {
         contextInfo: {
             isForwarded: true,
@@ -373,7 +269,7 @@ handler.all = async function(m) {
                 mediaUrl: null,
                 description: null,
                 previewType: "PHOTO",
-                thumbnail: global.icons ? global.icons : await (await fetch(global.icono)).buffer(),
+                thumbnail: iconBuffer,
                 sourceUrl: global.redes,
                 mediaType: 1,
                 renderLargerThumbnail: false

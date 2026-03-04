@@ -104,11 +104,11 @@ handler.all = async function (m) {
     global.wait = '🩵 Espera un momento, soy lento...'
     global.waitt = '🩵 Espera un momento, soy lento...'
 
-    var canal = 'https://whatsapp.com/channel/0029Vb73g1r1NCrTbefbFQ2T'
-    var comunidad = 'https://chat.whatsapp.com/GPfABUmCuVN2Qu1d1PPcBY'
+    var canal = 'https://whatsapp.com/channel/0029VbBUHyQCsU9IpJ0oIO2i'
+    var comunidad = 'https://chat.whatsapp.com/EFUkB3vLyAzAc4ZQzLabsp?mode=gi_t'
     var git = 'https://github.com/Brauliovh3'
     var github = 'https://github.com/Brauliovh3/HATSUNE-MIKU'
-    let correo = 'duartexv.ofc@gmail.com'
+    let correo = 'rufinofelipe495@gmail.com'
     global.redes = [canal, comunidad, git, github, correo].getRandom()
 
     global.nombre = m.pushName || 'Anónimo'

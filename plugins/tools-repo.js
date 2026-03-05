@@ -71,9 +71,9 @@ cada reporte de bug...
   await m.reply(message)
 }
 
-handler.help = ['repo', 'github', 'repositorio']
+handler.help = ['repo','repositorio']
 handler.tags = ['main']
-handler.command = /^(repo|github|repositorio)$/i
+handler.command = /^(repo|repositorio)$/i
 handler.group = true
 handler.register = false
 

@@ -142,12 +142,23 @@ let handler = async (m, { conn }) => {
 
 ✾) ᅠ⌜ 🤖 𝗜𝗔 ⌝
 
+·˚꒰ /claude ꒱˚·
+ ᜒ✿ habla con Claude
 ·˚꒰ /copilot ꒱˚·
  ᜒ✿ habla con Copilot
 ·˚꒰ /gemini ꒱˚·
  ᜒ✿ habla con Gemini
 ·˚꒰ /GPT ꒱˚·
  ᜒ✿ habla con ChatGPT
+
+✾) ᅠ⌜ 🔍 𝗦𝗧𝗔𝗟𝗞 ⌝
+
+·˚꒰ /github ꒱˚·
+ ᜒ✿ stalk de GitHub
+·˚꒰ /instagram ꒱˚·
+ ᜒ✿ stalk de Instagram
+·˚꒰ /tiktok ꒱˚·
+ ᜒ✿ stalk de TikTok
 
 ✾) ᅠ⌜ 📥 𝗗𝗘𝗦𝗖𝗔𝗥𝗚𝗔𝗦 ⌝
 
@@ -249,4 +260,4 @@ function clockString(ms) {
   let minutes = Math.floor((ms / (1000 * 60)) % 60)
   let hours = Math.floor((ms / (1000 * 60 * 60)) % 24)
   return `${hours}h ${minutes}m ${seconds}s`
-    }
+}

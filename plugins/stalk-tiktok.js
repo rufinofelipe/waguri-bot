@@ -70,7 +70,8 @@ const handler = async (m, { conn, text }) => {
   }
 }
 
-handler.command = handler.help = ["tiktok", "tiktokstalk", "ttstalk"]
+handler.command = ['ttstalck']
+handler.help = ["tiktok", "tiktokstalk", "ttstalk"]
 handler.tags = ["stalk"]
 handler.group = true
 handler.register = true

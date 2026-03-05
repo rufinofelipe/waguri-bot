@@ -148,7 +148,7 @@ var handler = async (m, { conn, args, usedPrefix, command }) => {
 
 handler.help = ['tiktok'].map((v) => v + ' *<link>*');
 handler.tags = ['descargas'];
-handler.command = ['tiktok', 'tt'];
+handler.command = ['tt'];
 handler.group = false;
 handler.register = true;
 

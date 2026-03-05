@@ -5,10 +5,12 @@ const handler = async (m, { conn, text }) => {
     if (!text.trim()) {
       return conn.reply(
         m.chat,
-        `╭─「 🌸 *WAGURI BOT* 🌸 」\n` +
+        `╭─「 🎵 *TIKTOK STALK* 」\n` +
         `│\n` +
         `│ 🎵 Ingresa el usuario de\n` +
         `│    TikTok que deseas buscar~\n` +
+        `│\n` +
+        `│ Ejemplo: .ttstalk duarte\n` +
         `│\n` +
         `╰────────────────────`,
         m
@@ -23,7 +25,7 @@ const handler = async (m, { conn, text }) => {
     }
 
     const d = json.result
-    const thumb = d.avatar ? (await conn.getFile(d.avatar))?.data : null
+    const thumb = d.avatar ? await getBuffer(d.avatar) : null
 
     const msg =
       `╭─「 🎵 *TIKTOK STALK* 」\n` +
@@ -59,7 +61,7 @@ const handler = async (m, { conn, text }) => {
   } catch (e) {
     conn.reply(
       m.chat,
-      `╭─「 🌸 *WAGURI BOT* 🌸 」\n` +
+      `╭─「 🎵 *TIKTOK STALK* 」\n` +
       `│\n` +
       `│ ❌ Ocurrió un error~\n` +
       `│ ⚠️ *${e.message}*\n` +
@@ -70,10 +72,8 @@ const handler = async (m, { conn, text }) => {
   }
 }
 
-handler.command = ['ttstalck']
-handler.help = ["tiktok", "tiktokstalk", "ttstalk"]
+handler.command = ['ttstalk', 'tiktokstalk', 'tiktok']
+handler.help = ["ttstalk", "tiktokstalk", "tiktok"]
 handler.tags = ["stalk"]
-handler.group = true
-handler.register = true
 
 export default handler

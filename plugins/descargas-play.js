@@ -7,7 +7,16 @@ import { exec } from "child_process"
 const API_KEY = "causa-b0ec2c842e895e70"
 const youtubeRegexID = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/
 
+// Fetch con timeout
+const fetchWithTimeout = (url, ms = 20000) => {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), ms)
+  return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timeout))
+}
+
 const handler = async (m, { conn, text, command }) => {
+  const tmpFiles = []
+
   try {
     if (!text.trim()) {
       return conn.reply(
@@ -22,18 +31,19 @@ const handler = async (m, { conn, text, command }) => {
       )
     }
 
-    let videoIdToFind = text.match(youtubeRegexID)
-    let ytSearch = await yts(videoIdToFind ? "https://youtu.be/" + videoIdToFind[1] : text)
+    // ✅ Búsqueda más robusta
+    const videoIdMatch = text.match(youtubeRegexID)
+    let ytSearch = null
 
-    if (videoIdToFind) {
-      ytSearch =
-        ytSearch.all.find(v => v.videoId === videoIdToFind[1]) ||
-        ytSearch.videos.find(v => v.videoId === videoIdToFind[1])
+    if (videoIdMatch) {
+      const result = await yts({ videoId: videoIdMatch[1] })
+      ytSearch = result
+    } else {
+      const result = await yts(text)
+      ytSearch = result.videos?.[0]
     }
 
-    ytSearch = ytSearch.all?.[0] || ytSearch.videos?.[0] || ytSearch
-
-    if (!ytSearch) return conn.reply(
+    if (!ytSearch?.title) return conn.reply(
       m.chat,
       `╭─「 🌸 *WAGURI BOT* 🌸 」\n` +
       `│\n` +
@@ -48,6 +58,8 @@ const handler = async (m, { conn, text, command }) => {
     const { title, thumbnail, timestamp, views, ago, url } = ytSearch
     const vistas = formatViews(views)
     const thumb = (await conn.getFile(thumbnail))?.data
+
+    // ✅ type se calcula correctamente
     const type = ["play", "yta", "ytmp3", "playaudio"].includes(command) ? "audio" : "video"
 
     await conn.reply(
@@ -80,13 +92,17 @@ const handler = async (m, { conn, text, command }) => {
       }
     )
 
-    const api = `https://rest.apicausas.xyz/api/v1/descargas/youtube?url=${encodeURIComponent(url)}&type=video&apikey=${API_KEY}`
+    // ✅ type ahora usa la variable, no está hardcodeado
+    const api = `https://rest.apicausas.xyz/api/v1/descargas/youtube?url=${encodeURIComponent(url)}&type=${type}&apikey=${API_KEY}`
 
-    const res = await fetch(api)
+    const res = await fetchWithTimeout(api, 25000)
+
+    if (!res.ok) throw new Error(`API respondió con status ${res.status}`)
+
     const json = await res.json()
 
     if (!json?.status || !json?.data?.download?.url) {
-      throw new Error("No se pudo obtener el archivo")
+      throw new Error(json?.message || "La API no devolvió un enlace de descarga")
     }
 
     const tmpDir = "./tmp"
@@ -95,14 +111,15 @@ const handler = async (m, { conn, text, command }) => {
     const base = Date.now()
     const mp4Path = path.join(tmpDir, `${base}.mp4`)
     const mp3Path = path.join(tmpDir, `${base}.mp3`)
+    tmpFiles.push(mp4Path, mp3Path) // ✅ registrar para limpiar al final
 
-    const buffer = await fetch(json.data.download.url).then(r => r.arrayBuffer())
+    const buffer = await fetchWithTimeout(json.data.download.url, 60000).then(r => r.arrayBuffer())
     fs.writeFileSync(mp4Path, Buffer.from(buffer))
 
     if (type === "audio") {
       await new Promise((resolve, reject) => {
-        exec(`ffmpeg -y -i "${mp4Path}" -vn -ab 128k "${mp3Path}"`, err => {
-          if (err) reject(err)
+        exec(`ffmpeg -y -i "${mp4Path}" -vn -ab 128k "${mp3Path}"`, (err, stdout, stderr) => {
+          if (err) reject(new Error(`ffmpeg falló: ${stderr}`))
           else resolve()
         })
       })
@@ -129,9 +146,6 @@ const handler = async (m, { conn, text, command }) => {
       )
     }
 
-    if (fs.existsSync(mp4Path)) fs.unlinkSync(mp4Path)
-    if (fs.existsSync(mp3Path)) fs.unlinkSync(mp3Path)
-
     await conn.reply(
       m.chat,
       `╭─「 🌸 *WAGURI BOT* 🌸 」\n` +
@@ -154,6 +168,11 @@ const handler = async (m, { conn, text, command }) => {
       `╰────────────────────`,
       m
     )
+  } finally {
+    // ✅ Limpieza garantizada aunque haya error
+    for (const f of tmpFiles) {
+      if (fs.existsSync(f)) fs.unlinkSync(f)
+    }
   }
 }
 

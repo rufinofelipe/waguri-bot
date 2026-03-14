@@ -6,6 +6,8 @@ import { exec } from "child_process"
 
 const API_KEY = "causa-b0ec2c842e895e70"
 const youtubeRegexID = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/
+const cooldowns = new Map()
+const COOLDOWN_MS = 90_000 // 1 minuto y 30 segundos
 
 // Fetch con timeout
 const fetchWithTimeout = (url, ms = 20000) => {
@@ -18,6 +20,31 @@ const handler = async (m, { conn, text, command }) => {
   const tmpFiles = []
 
   try {
+    // ✅ Cooldown check
+    const now = Date.now()
+    const lastUsed = cooldowns.get(m.sender) || 0
+    const remaining = COOLDOWN_MS - (now - lastUsed)
+
+    if (remaining > 0) {
+      const secs = Math.ceil(remaining / 1000)
+      const mins = Math.floor(secs / 60)
+      const secsLeft = secs % 60
+      const timeStr = mins > 0 ? `${mins}m ${secsLeft}s` : `${secsLeft}s`
+
+      return conn.reply(
+        m.chat,
+        `╭─「 🌸 *WAGURI BOT* 🌸 」\n` +
+        `│\n` +
+        `│ ⏳ Espera *${timeStr}* antes de\n` +
+        `│    usar este comando de nuevo~\n` +
+        `│\n` +
+        `╰────────────────────`,
+        m
+      )
+    }
+
+    cooldowns.set(m.sender, now)
+
     if (!text.trim()) {
       return conn.reply(
         m.chat,
@@ -31,7 +58,6 @@ const handler = async (m, { conn, text, command }) => {
       )
     }
 
-    // ✅ Búsqueda más robusta
     const videoIdMatch = text.match(youtubeRegexID)
     let ytSearch = null
 
@@ -58,8 +84,6 @@ const handler = async (m, { conn, text, command }) => {
     const { title, thumbnail, timestamp, views, ago, url } = ytSearch
     const vistas = formatViews(views)
     const thumb = (await conn.getFile(thumbnail))?.data
-
-    // ✅ type se calcula correctamente
     const type = ["play", "yta", "ytmp3", "playaudio"].includes(command) ? "audio" : "video"
 
     await conn.reply(
@@ -92,15 +116,12 @@ const handler = async (m, { conn, text, command }) => {
       }
     )
 
-    // ✅ type ahora usa la variable, no está hardcodeado
     const api = `https://rest.apicausas.xyz/api/v1/descargas/youtube?url=${encodeURIComponent(url)}&type=${type}&apikey=${API_KEY}`
 
     const res = await fetchWithTimeout(api, 25000)
-
     if (!res.ok) throw new Error(`API respondió con status ${res.status}`)
 
     const json = await res.json()
-
     if (!json?.status || !json?.data?.download?.url) {
       throw new Error(json?.message || "La API no devolvió un enlace de descarga")
     }
@@ -111,7 +132,7 @@ const handler = async (m, { conn, text, command }) => {
     const base = Date.now()
     const mp4Path = path.join(tmpDir, `${base}.mp4`)
     const mp3Path = path.join(tmpDir, `${base}.mp3`)
-    tmpFiles.push(mp4Path, mp3Path) // ✅ registrar para limpiar al final
+    tmpFiles.push(mp4Path, mp3Path)
 
     const buffer = await fetchWithTimeout(json.data.download.url, 60000).then(r => r.arrayBuffer())
     fs.writeFileSync(mp4Path, Buffer.from(buffer))
@@ -169,7 +190,6 @@ const handler = async (m, { conn, text, command }) => {
       m
     )
   } finally {
-    // ✅ Limpieza garantizada aunque haya error
     for (const f of tmpFiles) {
       if (fs.existsSync(f)) fs.unlinkSync(f)
     }

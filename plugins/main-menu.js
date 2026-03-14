@@ -150,6 +150,8 @@ let handler = async (m, { conn }) => {
  ᜒ✿ habla con Gemini
 ·˚꒰ /GPT ꒱˚·
  ᜒ✿ habla con ChatGPT
+·˚꒰ /flux <descripción> ꒱˚·
+ ᜒ✿ generar imagen con IA
 
 ✾) ᅠ⌜ 🔍 𝗦𝗧𝗔𝗟𝗞 ⌝
 

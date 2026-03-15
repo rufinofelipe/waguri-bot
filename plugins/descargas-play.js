@@ -6,10 +6,7 @@ import { exec } from "child_process"
 
 const API_KEY = "causa-b0ec2c842e895e70"
 const youtubeRegexID = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/
-const cooldowns = new Map()
-const COOLDOWN_MS = 90_000 // 1 minuto y 30 segundos
 
-// Fetch con timeout
 const fetchWithTimeout = (url, ms = 20000) => {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), ms)
@@ -20,31 +17,6 @@ const handler = async (m, { conn, text, command }) => {
   const tmpFiles = []
 
   try {
-    // ✅ Cooldown check
-    const now = Date.now()
-    const lastUsed = cooldowns.get(m.sender) || 0
-    const remaining = COOLDOWN_MS - (now - lastUsed)
-
-    if (remaining > 0) {
-      const secs = Math.ceil(remaining / 1000)
-      const mins = Math.floor(secs / 60)
-      const secsLeft = secs % 60
-      const timeStr = mins > 0 ? `${mins}m ${secsLeft}s` : `${secsLeft}s`
-
-      return conn.reply(
-        m.chat,
-        `╭─「 🌸 *WAGURI BOT* 🌸 」\n` +
-        `│\n` +
-        `│ ⏳ Espera *${timeStr}* antes de\n` +
-        `│    usar este comando de nuevo~\n` +
-        `│\n` +
-        `╰────────────────────`,
-        m
-      )
-    }
-
-    cooldowns.set(m.sender, now)
-
     if (!text.trim()) {
       return conn.reply(
         m.chat,

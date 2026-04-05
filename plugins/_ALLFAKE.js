@@ -139,7 +139,7 @@ handler.all = async function (m) {
         }
     }
 
-    global.icono = ['https://raw.githubusercontent.com/danielalejandrobasado-glitch/Yotsuba-MD-Premium/main/uploads/2f83e1a9416bb2d8.jpg'].getRandom()
+    global.icono = ['https://raw.githubusercontent.com/danielalejandrobasado-glitch/Yotsuba-MD-Premium/main/uploads/d4abc3ed38259119.jpg')'].getRandom()
 
     let iconBuffer
     if (global.icons) {

@@ -34,6 +34,7 @@ const TECNICAS_INDEPENDIENTE = [
 
 const PROB_ILIMITADO = 0.001
 
+// ── Comando .crear ────────────────────────────────────
 const handler = async (m, { conn }) => {
   try {
     const user = global.db.data.users[m.sender]
@@ -48,39 +49,32 @@ const handler = async (m, { conn }) => {
 
     user.jjkCreando = { paso: "clan" }
 
-    // Lista interactiva para elegir clan
-    await conn.sendMessage(m.chat, {
-      listMessage: {
-        title: "⚡ JUJUTSU KAISEN — Crear Personaje",
-        description: "Bienvenido al mundo de los Hechiceros Malditos.\n\n⚠️ Esta elección es *permanente*.",
-        footerText: "Waguri Bot 🌸",
-        buttonText: "Ver Clanes",
-        listType: 1,
-        sections: [
-          {
-            title: "Elige tu Clan",
-            rows: [
-              {
-                title: "🔵 Clan Gojo",
-                description: "Los 6 Ojos + El Infinito desde el nacimiento",
-                rowId: "clan_gojo"
-              },
-              {
-                title: "🔴 Clan Zenin",
-                description: "Técnica de las 10 Sombras. Honor y fuerza",
-                rowId: "clan_zenin"
-              },
-              {
-                title: "🟡 Independiente",
-                description: "Sin linaje. Forja tu propio camino",
-                rowId: "clan_independiente"
-              }
-            ]
-          }
-        ]
-      }
-    }, { quoted: m })
-
+    return conn.reply(
+      m.chat,
+      `╭─「 ⚡ *JUJUTSU KAISEN* 」\n` +
+      `│\n` +
+      `│ 🌸 Bienvenido al mundo de los\n` +
+      `│    *Hechiceros Malditos*~\n` +
+      `│\n` +
+      `│ ⚠️ *Esta elección es permanente.*\n` +
+      `│    No podrás cambiarla.\n` +
+      `│\n` +
+      `│ ══ Elige tu *Clan* ══\n` +
+      `│\n` +
+      `│ 🔵 *1.* Clan Gojo\n` +
+      `│    Los 6 Ojos + El Infinito\n` +
+      `│\n` +
+      `│ 🔴 *2.* Clan Zenin\n` +
+      `│    Técnica de las 10 Sombras\n` +
+      `│\n` +
+      `│ 🟡 *3.* Independiente\n` +
+      `│    Forja tu propio camino\n` +
+      `│\n` +
+      `│ 💬 Responde con *1*, *2* o *3*\n` +
+      `│\n` +
+      `╰────────────────────`,
+      m
+    )
   } catch (e) {
     conn.reply(
       m.chat,
@@ -90,30 +84,24 @@ const handler = async (m, { conn }) => {
   }
 }
 
-// Captura la selección de la lista y también respuestas de texto
-handler.all = async function (m, { conn }) {
+// ── Captura respuestas sin prefijo ────────────────────
+// IMPORTANTE: usa "this" como conn porque así lo llama el handler.js
+handler.all = async function (m) {
   try {
+    const conn = this // <-- aquí está la corrección clave
+
     if (!m.isGroup) return
     const user = global.db.data.users[m.sender]
     if (!user || !user.jjkCreando) return
+    if (!m.text) return
 
     const paso = user.jjkCreando.paso
-
-    // Detectar selección de lista interactiva
-    const listaSeleccion = m.message?.listResponseMessage?.singleSelectReply?.selectedRowId
-    const textoRespuesta = (m.text || "").trim().toLowerCase()
-    const respuesta = listaSeleccion || textoRespuesta
-
-    if (!respuesta) return
+    const respuesta = m.text.trim().toLowerCase()
 
     // ── Paso 1: Elegir clan ───────────────────────────
     if (paso === "clan") {
-      let clanKey = null
-
-      if (respuesta === "clan_gojo" || respuesta === "gojo" || respuesta === "1") clanKey = "gojo"
-      else if (respuesta === "clan_zenin" || respuesta === "zenin" || respuesta === "2") clanKey = "zenin"
-      else if (respuesta === "clan_independiente" || respuesta === "independiente" || respuesta === "3") clanKey = "independiente"
-
+      const opciones = { "1": "gojo", "2": "zenin", "3": "independiente" }
+      const clanKey = opciones[respuesta]
       if (!clanKey) return
 
       user.jjkCreando.clan = clanKey
@@ -121,7 +109,6 @@ handler.all = async function (m, { conn }) {
 
       if (clanKey === "gojo" || clanKey === "zenin") {
         user.jjkCreando.paso = "confirmar"
-
         return conn.reply(
           m.chat,
           `╭─「 ⚡ *JUJUTSU KAISEN* 」\n` +
@@ -142,40 +129,32 @@ handler.all = async function (m, { conn }) {
 
       if (clanKey === "independiente") {
         user.jjkCreando.paso = "tecnica"
+        const lista = TECNICAS_INDEPENDIENTE
+          .map((t, i) => `│ *${i + 1}.* ${t}`)
+          .join("\n")
 
-        // Lista para elegir técnica
-        await conn.sendMessage(m.chat, {
-          listMessage: {
-            title: "🟡 Independiente — Elige tu técnica",
-            description: "Además tendrás *Refuerzo Maldito* de base.",
-            footerText: "Waguri Bot 🌸",
-            buttonText: "Ver Técnicas",
-            listType: 1,
-            sections: [
-              {
-                title: "Técnicas disponibles",
-                rows: TECNICAS_INDEPENDIENTE.map((t, i) => ({
-                  title: t,
-                  description: "Técnica inicial",
-                  rowId: `tecnica_${i}`
-                }))
-              }
-            ]
-          }
-        }, { quoted: m })
+        return conn.reply(
+          m.chat,
+          `╭─「 ⚡ *JUJUTSU KAISEN* 」\n` +
+          `│\n` +
+          `│ 🟡 *Independiente seleccionado*\n` +
+          `│\n` +
+          `│ ⚔️ Elige tu *técnica inicial:*\n` +
+          `│ *(además tendrás Refuerzo Maldito)*\n` +
+          `│\n` +
+          `${lista}\n` +
+          `│\n` +
+          `│ 💬 Responde con el número\n` +
+          `│\n` +
+          `╰────────────────────`,
+          m
+        )
       }
     }
 
     // ── Paso 2: Elegir técnica (Independiente) ────────
     if (paso === "tecnica") {
-      let idx = null
-
-      if (respuesta.startsWith("tecnica_")) {
-        idx = parseInt(respuesta.replace("tecnica_", ""))
-      } else {
-        idx = parseInt(respuesta) - 1
-      }
-
+      const idx = parseInt(respuesta) - 1
       if (isNaN(idx) || idx < 0 || idx >= TECNICAS_INDEPENDIENTE.length) return
 
       const tecnicaElegida = TECNICAS_INDEPENDIENTE[idx]
@@ -257,7 +236,6 @@ handler.all = async function (m, { conn }) {
 
       delete user.jjkCreando
 
-      // Anuncio poder ilimitado
       if (esPoderilimitado) {
         await conn.sendMessage(m.chat, {
           text:

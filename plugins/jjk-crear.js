@@ -1,8 +1,4 @@
-//código creado por Rufino 
-// ╭─「 ⚡ JJK SYSTEM — WAGURI BOT 」
-// │  jjk-crear.js
-// │  Creación única de personaje Jujutsu Kaisen
-// ╰────────────────────────────────────────────
+// código creado por Rufino
 
 const CLANES = {
   gojo: {
@@ -36,7 +32,7 @@ const TECNICAS_INDEPENDIENTE = [
   "Marioneta Maldita"
 ]
 
-const PROB_ILIMITADO = 0.001 // 1 en 1000
+const PROB_ILIMITADO = 0.001
 
 const handler = async (m, { conn }) => {
   try {
@@ -45,59 +41,56 @@ const handler = async (m, { conn }) => {
     if (user.jjk) {
       return conn.reply(
         m.chat,
-        `╭─「 ⚡ *JUJUTSU KAISEN* 」\n` +
-        `│\n` +
-        `│ ⚠️ Ya tienes un personaje creado~\n` +
-        `│ 🔎 Usa *.jjkperfil* para verlo\n` +
-        `│\n` +
-        `╰────────────────────`,
+        `╭─「 ⚡ *JUJUTSU KAISEN* 」\n│\n│ ⚠️ Ya tienes un personaje creado~\n│ 🔎 Usa *.jjkperfil* para verlo\n│\n╰────────────────────`,
         m
       )
     }
 
     user.jjkCreando = { paso: "clan" }
 
-    return conn.reply(
-      m.chat,
-      `╭─「 ⚡ *JUJUTSU KAISEN* 」\n` +
-      `│\n` +
-      `│ 🌸 Bienvenido al mundo de los\n` +
-      `│    *Hechiceros Malditos*~\n` +
-      `│\n` +
-      `│ ⚠️ *Esta elección es permanente.*\n` +
-      `│    No podrás cambiarla.\n` +
-      `│\n` +
-      `│ ══ Elige tu *Clan* ══\n` +
-      `│\n` +
-      `│ 🔵 *1.* Clan Gojo\n` +
-      `│    Los 6 Ojos + El Infinito\n` +
-      `│\n` +
-      `│ 🔴 *2.* Clan Zenin\n` +
-      `│    Técnica de las 10 Sombras\n` +
-      `│\n` +
-      `│ 🟡 *3.* Independiente\n` +
-      `│    Forja tu propio camino\n` +
-      `│\n` +
-      `│ 💬 Responde con *1*, *2* o *3*\n` +
-      `│\n` +
-      `╰────────────────────`,
-      m
-    )
+    // Lista interactiva para elegir clan
+    await conn.sendMessage(m.chat, {
+      listMessage: {
+        title: "⚡ JUJUTSU KAISEN — Crear Personaje",
+        description: "Bienvenido al mundo de los Hechiceros Malditos.\n\n⚠️ Esta elección es *permanente*.",
+        footerText: "Waguri Bot 🌸",
+        buttonText: "Ver Clanes",
+        listType: 1,
+        sections: [
+          {
+            title: "Elige tu Clan",
+            rows: [
+              {
+                title: "🔵 Clan Gojo",
+                description: "Los 6 Ojos + El Infinito desde el nacimiento",
+                rowId: "clan_gojo"
+              },
+              {
+                title: "🔴 Clan Zenin",
+                description: "Técnica de las 10 Sombras. Honor y fuerza",
+                rowId: "clan_zenin"
+              },
+              {
+                title: "🟡 Independiente",
+                description: "Sin linaje. Forja tu propio camino",
+                rowId: "clan_independiente"
+              }
+            ]
+          }
+        ]
+      }
+    }, { quoted: m })
+
   } catch (e) {
     conn.reply(
       m.chat,
-      `╭─「 🌸 *WAGURI BOT* 🌸 」\n` +
-      `│\n` +
-      `│ ❌ Ocurrió un error~\n` +
-      `│ ⚠️ *${e.message}*\n` +
-      `│\n` +
-      `╰────────────────────`,
+      `╭─「 🌸 *WAGURI BOT* 🌸 」\n│\n│ ❌ Ocurrió un error~\n│ ⚠️ *${e.message}*\n│\n╰────────────────────`,
       m
     )
   }
 }
 
-// ── Captura respuestas sin prefijo ────────────────────────
+// Captura la selección de la lista y también respuestas de texto
 handler.all = async function (m, { conn }) {
   try {
     if (!m.isGroup) return
@@ -105,52 +98,40 @@ handler.all = async function (m, { conn }) {
     if (!user || !user.jjkCreando) return
 
     const paso = user.jjkCreando.paso
-    const respuesta = (m.text || "").trim().toLowerCase()
+
+    // Detectar selección de lista interactiva
+    const listaSeleccion = m.message?.listResponseMessage?.singleSelectReply?.selectedRowId
+    const textoRespuesta = (m.text || "").trim().toLowerCase()
+    const respuesta = listaSeleccion || textoRespuesta
+
+    if (!respuesta) return
 
     // ── Paso 1: Elegir clan ───────────────────────────
     if (paso === "clan") {
-      const opciones = { "1": "gojo", "2": "zenin", "3": "independiente" }
-      const clanKey = opciones[respuesta]
+      let clanKey = null
+
+      if (respuesta === "clan_gojo" || respuesta === "gojo" || respuesta === "1") clanKey = "gojo"
+      else if (respuesta === "clan_zenin" || respuesta === "zenin" || respuesta === "2") clanKey = "zenin"
+      else if (respuesta === "clan_independiente" || respuesta === "independiente" || respuesta === "3") clanKey = "independiente"
+
       if (!clanKey) return
 
       user.jjkCreando.clan = clanKey
+      const clan = CLANES[clanKey]
 
-      if (clanKey === "gojo") {
+      if (clanKey === "gojo" || clanKey === "zenin") {
         user.jjkCreando.paso = "confirmar"
+
         return conn.reply(
           m.chat,
           `╭─「 ⚡ *JUJUTSU KAISEN* 」\n` +
           `│\n` +
-          `│ 🔵 *Clan Gojo seleccionado*\n` +
-          `│\n` +
-          `│ 👁️ Los *6 Ojos* han despertado\n` +
-          `│    en ti desde el nacimiento.\n` +
+          `│ ${clan.emoji} *${clan.nombre} seleccionado*\n` +
           `│\n` +
           `│ ✨ *Técnicas iniciales:*\n` +
-          `│    • Infinito\n` +
-          `│    • 6 Ojos (Pasiva)\n` +
+          `${clan.tecnicaBase.map(t => `│    • ${t}`).join("\n")}\n` +
           `│\n` +
-          `│ ¿Confirmas? Responde *si* o *no*\n` +
-          `│\n` +
-          `╰────────────────────`,
-          m
-        )
-      }
-
-      if (clanKey === "zenin") {
-        user.jjkCreando.paso = "confirmar"
-        return conn.reply(
-          m.chat,
-          `╭─「 ⚡ *JUJUTSU KAISEN* 」\n` +
-          `│\n` +
-          `│ 🔴 *Clan Zenin seleccionado*\n` +
-          `│\n` +
-          `│ 🐾 La *Técnica de las 10 Sombras*\n` +
-          `│    fluye por tu sangre.\n` +
-          `│\n` +
-          `│ ✨ *Técnicas iniciales:*\n` +
-          `│    • Técnica de las 10 Sombras\n` +
-          `│    • Shikigami: Div. Perros\n` +
+          `│ 💜 *Poder Maldito inicial:* ${clan.poderInicial}\n` +
           `│\n` +
           `│ ¿Confirmas? Responde *si* o *no*\n` +
           `│\n` +
@@ -161,34 +142,40 @@ handler.all = async function (m, { conn }) {
 
       if (clanKey === "independiente") {
         user.jjkCreando.paso = "tecnica"
-        const lista = TECNICAS_INDEPENDIENTE
-          .map((t, i) => `│ *${i + 1}.* ${t}`)
-          .join("\n")
 
-        return conn.reply(
-          m.chat,
-          `╭─「 ⚡ *JUJUTSU KAISEN* 」\n` +
-          `│\n` +
-          `│ 🟡 *Independiente seleccionado*\n` +
-          `│\n` +
-          `│ 💪 Sin linaje. Solo tu fuerza.\n` +
-          `│\n` +
-          `│ ⚔️ Elige tu *técnica inicial:*\n` +
-          `│ *(además tendrás Refuerzo Maldito)*\n` +
-          `│\n` +
-          `${lista}\n` +
-          `│\n` +
-          `│ 💬 Responde con el número\n` +
-          `│\n` +
-          `╰────────────────────`,
-          m
-        )
+        // Lista para elegir técnica
+        await conn.sendMessage(m.chat, {
+          listMessage: {
+            title: "🟡 Independiente — Elige tu técnica",
+            description: "Además tendrás *Refuerzo Maldito* de base.",
+            footerText: "Waguri Bot 🌸",
+            buttonText: "Ver Técnicas",
+            listType: 1,
+            sections: [
+              {
+                title: "Técnicas disponibles",
+                rows: TECNICAS_INDEPENDIENTE.map((t, i) => ({
+                  title: t,
+                  description: "Técnica inicial",
+                  rowId: `tecnica_${i}`
+                }))
+              }
+            ]
+          }
+        }, { quoted: m })
       }
     }
 
     // ── Paso 2: Elegir técnica (Independiente) ────────
     if (paso === "tecnica") {
-      const idx = parseInt(respuesta) - 1
+      let idx = null
+
+      if (respuesta.startsWith("tecnica_")) {
+        idx = parseInt(respuesta.replace("tecnica_", ""))
+      } else {
+        idx = parseInt(respuesta) - 1
+      }
+
       if (isNaN(idx) || idx < 0 || idx >= TECNICAS_INDEPENDIENTE.length) return
 
       const tecnicaElegida = TECNICAS_INDEPENDIENTE[idx]
@@ -205,6 +192,8 @@ handler.all = async function (m, { conn }) {
         `│    • Refuerzo Maldito\n` +
         `│    • ${tecnicaElegida}\n` +
         `│\n` +
+        `│ 💜 *Poder Maldito inicial:* 100\n` +
+        `│\n` +
         `│ ¿Confirmas? Responde *si* o *no*\n` +
         `│\n` +
         `╰────────────────────`,
@@ -212,18 +201,13 @@ handler.all = async function (m, { conn }) {
       )
     }
 
-    // ── Paso 3: Confirmación final ────────────────────
+    // ── Paso 3: Confirmación ──────────────────────────
     if (paso === "confirmar") {
       if (respuesta === "no") {
         delete user.jjkCreando
         return conn.reply(
           m.chat,
-          `╭─「 ⚡ *JUJUTSU KAISEN* 」\n` +
-          `│\n` +
-          `│ 🔄 Creación cancelada~\n` +
-          `│ Usa *.crear* para empezar de nuevo\n` +
-          `│\n` +
-          `╰────────────────────`,
+          `╭─「 ⚡ *JUJUTSU KAISEN* 」\n│\n│ 🔄 Creación cancelada~\n│ Usa *.crear* para empezar de nuevo\n│\n╰────────────────────`,
           m
         )
       }
@@ -273,22 +257,11 @@ handler.all = async function (m, { conn }) {
 
       delete user.jjkCreando
 
+      // Anuncio poder ilimitado
       if (esPoderilimitado) {
         await conn.sendMessage(m.chat, {
           text:
-            `╭─「 ⚡ *¡ACONTECIMIENTO HISTÓRICO!* 」\n` +
-            `│\n` +
-            `│ 👑 *@${m.sender.split("@")[0]}*\n` +
-            `│    ha nacido con\n` +
-            `│ ✨ *PODER MALDITO ILIMITADO* ✨\n` +
-            `│\n` +
-            `│ 🌌 Puede usar *TODAS* las técnicas\n` +
-            `│    desde el nivel 1.\n` +
-            `│\n` +
-            `│ ⚠️ Solo puede existir *UNO*.\n` +
-            `│    Y ya está entre nosotros.\n` +
-            `│\n` +
-            `╰────────────────────`,
+            `╭─「 ⚡ *¡ACONTECIMIENTO HISTÓRICO!* 」\n│\n│ 👑 *@${m.sender.split("@")[0]}*\n│    ha nacido con\n│ ✨ *PODER MALDITO ILIMITADO* ✨\n│\n│ 🌌 Puede usar *TODAS* las técnicas\n│    desde el nivel 1.\n│\n│ ⚠️ Solo puede existir *UNO*.\n│\n╰────────────────────`,
           mentions: [m.sender]
         })
       }

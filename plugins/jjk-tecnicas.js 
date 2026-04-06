@@ -1,0 +1,99 @@
+// código creado por Rufino
+
+const TODAS_TECNICAS = {
+  // Clan Gojo
+  "Infinito": { clan: "gojo", nivel: 1, descripcion: "Barrera invisible que detiene todo lo que se acerca.", emoji: "🔵" },
+  "6 Ojos (Pasiva)": { clan: "gojo", nivel: 1, descripcion: "Habilidad innata que optimiza el uso de energía maldita al máximo.", emoji: "👁️" },
+  "Técnica Roja": { clan: "gojo", nivel: 5, descripcion: "Inversión del Azul. Repulsión que destruye todo a su paso.", emoji: "🔴" },
+  "Técnica Azul": { clan: "gojo", nivel: 5, descripcion: "Atracción amplificada que colapsa el espacio.", emoji: "🔵" },
+  "Técnica Púrpura": { clan: "gojo", nivel: 15, descripcion: "Fusión del Rojo y Azul. Borra todo lo que toca de la existencia.", emoji: "💜" },
+  "Infinito Dominio — Vacío Ilusorio": { clan: "gojo", nivel: 25, descripcion: "Dominio que sobrecarga los sentidos con información infinita.", emoji: "🌌" },
+
+  // Clan Zenin
+  "Técnica de las 10 Sombras": { clan: "zenin", nivel: 1, descripcion: "Invoca shikigamis usando sombras como medio.", emoji: "🐾" },
+  "Shikigami: Div. Perros": { clan: "zenin", nivel: 1, descripcion: "Dos perros de ataque rápido y rastreo.", emoji: "🐕" },
+  "Shikigami: Toad": { clan: "zenin", nivel: 8, descripcion: "Sapo gigante capaz de transportar y atrapar enemigos.", emoji: "🐸" },
+  "Shikigami: Gran Serpiente": { clan: "zenin", nivel: 12, descripcion: "Serpiente colosal de ataque masivo.", emoji: "🐍" },
+  "Shikigami: Nue": { clan: "zenin", nivel: 15, descripcion: "Criatura alada que lanza descargas eléctricas.", emoji: "⚡" },
+  "Shikigami: Elefante": { clan: "zenin", nivel: 18, descripcion: "Elefante que dispara chorros de agua devastadores.", emoji: "🐘" },
+  "Shikigami: Mahoraga": { clan: "zenin", nivel: 30, descripcion: "El shikigami más poderoso. Nadie lo ha domado jamás.", emoji: "☯️" },
+  "Guarida del Perro": { clan: "zenin", nivel: 25, descripcion: "Dominio que invoca una lluvia de shikigamis imparables.", emoji: "🌑" },
+
+  // Independiente
+  "Refuerzo Maldito": { clan: "independiente", nivel: 1, descripcion: "Técnica base que refuerza el cuerpo con energía maldita.", emoji: "💪" },
+  "Llama Sangrienta": { clan: "independiente", nivel: 3, descripcion: "Llamas de energía maldita que queman el alma.", emoji: "🔥" },
+  "Resonancia Maldita": { clan: "independiente", nivel: 5, descripcion: "Divide el objetivo en proporciones exactas con un corte.", emoji: "⚔️" },
+  "Transformación Maldita": { clan: "independiente", nivel: 8, descripcion: "Moldea el alma ajena para transformar su cuerpo.", emoji: "🌀" },
+  "Discurso Maldito": { clan: "independiente", nivel: 10, descripcion: "Palabras que se convierten en órdenes que el cuerpo debe obedecer.", emoji: "🗣️" },
+  "Marioneta Maldita": { clan: "independiente", nivel: 12, descripcion: "Controla el cuerpo ajeno como una marioneta.", emoji: "🎭" },
+  "Expansión de Dominio propia": { clan: "independiente", nivel: 28, descripcion: "Tu dominio personal. Forjado con sangre y esfuerzo.", emoji: "🌐" },
+}
+
+const handler = async (m, { conn, mentionedJid }) => {
+  try {
+    const target = mentionedJid && mentionedJid[0] ? mentionedJid[0] : m.sender
+    const user = global.db.data.users[target]
+    const esPropio = target === m.sender
+
+    if (!user || !user.jjk) {
+      return conn.reply(
+        m.chat,
+        `╭─「 ⚡ *JUJUTSU KAISEN* 」\n` +
+        `│\n` +
+        `│ ❌ ${esPropio ? "Aún no tienes personaje~" : "Ese hechicero no existe~"}\n` +
+        `│ 💬 Usa *.crear* para comenzar\n` +
+        `│\n` +
+        `╰────────────────────`,
+        m
+      )
+    }
+
+    const jjk = user.jjk
+    const nombre = esPropio ? "Tus técnicas" : `Técnicas de @${target.split("@")[0]}`
+
+    // Construir lista de técnicas con info
+    const tecnicasTexto = jjk.tecnicas.map(t => {
+      const info = TODAS_TECNICAS[t]
+      if (!info) return `│\n│ ${t}\n│ ┗ Sin descripción`
+      return `│\n│ ${info.emoji} *${t}*\n│ ┗ ${info.descripcion}`
+    }).join("\n")
+
+    // Técnicas bloqueadas (las que no tiene aún)
+    const bloqueadas = Object.entries(TODAS_TECNICAS).filter(([nombre, info]) => {
+      return info.clan === jjk.clan || info.clan === "independiente" && jjk.clan === "independiente"
+    }).filter(([nombre]) => !jjk.tecnicas.includes(nombre))
+
+    const proximaTexto = bloqueadas.length > 0
+      ? `│\n│ 🔒 *Próxima técnica:*\n│    ${bloqueadas[0][1].emoji} ${bloqueadas[0][0]} (Nivel ${bloqueadas[0][1].nivel})`
+      : `│\n│ ✅ *¡Tienes todas las técnicas!*`
+
+    return conn.reply(
+      m.chat,
+      `╭─「 ⚡ *JUJUTSU KAISEN* 」\n` +
+      `│\n` +
+      `│ ⚔️ *${nombre}*\n` +
+      `│ 📊 Nivel actual: ${jjk.nivel}\n` +
+      `${tecnicasTexto}\n` +
+      `│\n` +
+      `│ ══════════════════\n` +
+      `${proximaTexto}\n` +
+      `│\n` +
+      `╰────────────────────`,
+      m
+    )
+
+  } catch (e) {
+    conn.reply(
+      m.chat,
+      `╭─「 🌸 *WAGURI BOT* 🌸 」\n│\n│ ❌ Ocurrió un error~\n│ ⚠️ *${e.message}*\n│\n╰────────────────────`,
+      m
+    )
+  }
+}
+
+handler.command = handler.help = ["jjktecnicas", "tecnicas", "jjkt"]
+handler.tags = ["jjk"]
+handler.group = true
+handler.register = true
+
+export default handler

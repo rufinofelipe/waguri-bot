@@ -1,17 +1,19 @@
+// código creado por Rufino
+
 import fs from "fs"
 import path from "path"
 import fetch from "node-fetch"
 import yts from "yt-search"
-import { exec } from "child_process"
 
-const API_KEY = "causa-b0ec2c842e895e70"
-const youtubeRegexID = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/
+const NEX_API_KEY = "NEX-1347F02887D541D48F310A56"
 
 const fetchWithTimeout = (url, ms = 20000) => {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), ms)
   return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timeout))
 }
+
+const youtubeRegexID = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/
 
 const handler = async (m, { conn, text, command }) => {
   const tmpFiles = []
@@ -20,12 +22,7 @@ const handler = async (m, { conn, text, command }) => {
     if (!text.trim()) {
       return conn.reply(
         m.chat,
-        `╭─「 🌸 *WAGURI BOT* 🌸 」\n` +
-        `│\n` +
-        `│ 🎵 Ingresa el nombre o enlace\n` +
-        `│    del video que deseas ~\n` +
-        `│\n` +
-        `╰────────────────────`,
+        `╭─「 🌸 *WAGURI BOT* 🌸 」\n│\n│ 🎵 Ingresa el nombre o enlace\n│    del video que deseas ~\n│\n╰────────────────────`,
         m
       )
     }
@@ -43,13 +40,7 @@ const handler = async (m, { conn, text, command }) => {
 
     if (!ytSearch?.title) return conn.reply(
       m.chat,
-      `╭─「 🌸 *WAGURI BOT* 🌸 」\n` +
-      `│\n` +
-      `│ 🦋 No encontré resultados~\n` +
-      `│    Intenta con otro nombre\n` +
-      `│    o enlace ✨\n` +
-      `│\n` +
-      `╰────────────────────`,
+      `╭─「 🌸 *WAGURI BOT* 🌸 」\n│\n│ 🦋 No encontré resultados~\n│    Intenta con otro nombre\n│\n╰────────────────────`,
       m
     )
 
@@ -60,18 +51,7 @@ const handler = async (m, { conn, text, command }) => {
 
     await conn.reply(
       m.chat,
-      `╭─「 🌸 *WAGURI BOT* 🌸 」\n` +
-      `│\n` +
-      `│ 🎬 *${title}*\n` +
-      `│\n` +
-      `│ 👁️ Vistas   » *${vistas}*\n` +
-      `│ ⏳ Duración » *${timestamp}*\n` +
-      `│ 📅 Subido   » *${ago}*\n` +
-      `│\n` +
-      `│ 📥 Procesando tu archivo~\n` +
-      `│    Por favor espera 💗\n` +
-      `│\n` +
-      `╰────────────────────`,
+      `╭─「 🌸 *WAGURI BOT* 🌸 」\n│\n│ 🎬 *${title}*\n│\n│ 👁️ Vistas   » *${vistas}*\n│ ⏳ Duración » *${timestamp}*\n│ 📅 Subido   » *${ago}*\n│\n│ 📥 Procesando tu archivo~\n│    Por favor espera 💗\n│\n╰────────────────────`,
       m,
       {
         contextInfo: {
@@ -88,39 +68,35 @@ const handler = async (m, { conn, text, command }) => {
       }
     )
 
-    const api = `https://rest.apicausas.xyz/api/v1/descargas/youtube?url=${encodeURIComponent(url)}&type=${type}&apikey=${API_KEY}`
+    // ── Nueva API según tipo ──────────────────────────
+    const encodedUrl = encodeURIComponent(url)
+    const apiUrl = type === "audio"
+      ? `https://nex-magical.vercel.app/download/audio?url=${encodedUrl}&apikey=${NEX_API_KEY}`
+      : `https://nex-magical.vercel.app/download/video?url=${encodedUrl}&apikey=${NEX_API_KEY}`
 
-    const res = await fetchWithTimeout(api, 25000)
+    const res = await fetchWithTimeout(apiUrl, 30000)
     if (!res.ok) throw new Error(`API respondió con status ${res.status}`)
 
     const json = await res.json()
-    if (!json?.status || !json?.data?.download?.url) {
-      throw new Error(json?.message || "La API no devolvió un enlace de descarga")
-    }
+    const downloadUrl = json?.url || json?.data?.url || json?.download || json?.link
+
+    if (!downloadUrl) throw new Error("La API no devolvió un enlace de descarga")
 
     const tmpDir = "./tmp"
     if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir)
 
     const base = Date.now()
-    const mp4Path = path.join(tmpDir, `${base}.mp4`)
-    const mp3Path = path.join(tmpDir, `${base}.mp3`)
-    tmpFiles.push(mp4Path, mp3Path)
+    const filePath = path.join(tmpDir, type === "audio" ? `${base}.mp3` : `${base}.mp4`)
+    tmpFiles.push(filePath)
 
-    const buffer = await fetchWithTimeout(json.data.download.url, 60000).then(r => r.arrayBuffer())
-    fs.writeFileSync(mp4Path, Buffer.from(buffer))
+    const buffer = await fetchWithTimeout(downloadUrl, 60000).then(r => r.arrayBuffer())
+    fs.writeFileSync(filePath, Buffer.from(buffer))
 
     if (type === "audio") {
-      await new Promise((resolve, reject) => {
-        exec(`ffmpeg -y -i "${mp4Path}" -vn -ab 128k "${mp3Path}"`, (err, stdout, stderr) => {
-          if (err) reject(new Error(`ffmpeg falló: ${stderr}`))
-          else resolve()
-        })
-      })
-
       await conn.sendMessage(
         m.chat,
         {
-          audio: fs.readFileSync(mp3Path),
+          audio: fs.readFileSync(filePath),
           fileName: `${title}.mp3`,
           mimetype: "audio/mpeg",
           ptt: false
@@ -131,7 +107,7 @@ const handler = async (m, { conn, text, command }) => {
       await conn.sendMessage(
         m.chat,
         {
-          document: fs.readFileSync(mp4Path),
+          document: fs.readFileSync(filePath),
           fileName: `${title}.mp4`,
           mimetype: "video/mp4"
         },
@@ -141,24 +117,14 @@ const handler = async (m, { conn, text, command }) => {
 
     await conn.reply(
       m.chat,
-      `╭─「 🌸 *WAGURI BOT* 🌸 」\n` +
-      `│\n` +
-      `│ ✅ *¡Listo!* Tu archivo llegó ~\n` +
-      `│ 🌸 Disfrútalo mucho 💗\n` +
-      `│\n` +
-      `╰────────────────────`,
+      `╭─「 🌸 *WAGURI BOT* 🌸 」\n│\n│ ✅ *¡Listo!* Tu archivo llegó ~\n│ 🌸 Disfrútalo mucho 💗\n│\n╰────────────────────`,
       m
     )
 
   } catch (e) {
     conn.reply(
       m.chat,
-      `╭─「 🌸 *WAGURI BOT* 🌸 」\n` +
-      `│\n` +
-      `│ ❌ Ocurrió un error~\n` +
-      `│ ⚠️ *${e.message}*\n` +
-      `│\n` +
-      `╰────────────────────`,
+      `╭─「 🌸 *WAGURI BOT* 🌸 」\n│\n│ ❌ Ocurrió un error~\n│ ⚠️ *${e.message}*\n│\n╰────────────────────`,
       m
     )
   } finally {

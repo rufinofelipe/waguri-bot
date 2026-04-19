@@ -5,7 +5,8 @@ import path from "path"
 import fetch from "node-fetch"
 import yts from "yt-search"
 
-const NEX_API_KEY = "NEX-1347F02887D541D48F310A56"
+const API_KEY = "causa-b0ec2c842e895e70"
+const API_BASE = "https://rest.apicausas.xyz/api/v1/descargas/youtube"
 
 const fetchWithTimeout = (url, ms = 20000) => {
   const controller = new AbortController()
@@ -31,8 +32,7 @@ const handler = async (m, { conn, text, command }) => {
     let ytSearch = null
 
     if (videoIdMatch) {
-      const result = await yts({ videoId: videoIdMatch[1] })
-      ytSearch = result
+      ytSearch = await yts({ videoId: videoIdMatch[1] })
     } else {
       const result = await yts(text)
       ytSearch = result.videos?.[0]
@@ -68,19 +68,17 @@ const handler = async (m, { conn, text, command }) => {
       }
     )
 
-    // ── Nueva API según tipo ──────────────────────────
-    const encodedUrl = encodeURIComponent(url)
-    const apiUrl = type === "audio"
-      ? `https://nex-magical.vercel.app/download/audio?url=${encodedUrl}&apikey=${NEX_API_KEY}`
-      : `https://nex-magical.vercel.app/download/video?url=${encodedUrl}&apikey=${NEX_API_KEY}`
+    const apiUrl = `${API_BASE}?apikey=${API_KEY}&url=${encodeURIComponent(url)}&type=${type}`
 
     const res = await fetchWithTimeout(apiUrl, 30000)
     if (!res.ok) throw new Error(`API respondió con status ${res.status}`)
 
     const json = await res.json()
-    const downloadUrl = json?.url || json?.data?.url || json?.download || json?.link
+    if (!json?.status || !json?.data?.download?.url) {
+      throw new Error(json?.message || "La API no devolvió un enlace de descarga")
+    }
 
-    if (!downloadUrl) throw new Error("La API no devolvió un enlace de descarga")
+    const downloadUrl = json.data.download.url
 
     const tmpDir = "./tmp"
     if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir)
